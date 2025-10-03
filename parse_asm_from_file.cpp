@@ -47,7 +47,6 @@ asm_code parser_asm(const char* name_of_file){
     code.size = idx;
     printf("%d\n", idx);
 
-    
     int* arr_new = (int*)realloc(arr, idx*sizeof(int));
     if(!arr_new){
         return code;
