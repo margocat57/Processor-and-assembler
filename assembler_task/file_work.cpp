@@ -1,0 +1,111 @@
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <assert.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include "file_work.h"
+
+bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file)
+{
+    assert(name_of_file != NULL);
+    assert(all_info_about_file != NULL);
+
+    if (stat(name_of_file, all_info_about_file) == -1)
+    {
+        perror("Stat error");
+        fprintf(stderr, "Error code: %d\n", errno);
+        return true;
+    }
+    return false;
+}
+
+int count_strings_by_symbols(char *array_to_search, char ch)
+{
+    assert(array_to_search != NULL);
+
+    int count_str = 1;
+
+    while ((array_to_search = strchr(array_to_search, ch)) != NULL)
+    {
+        count_str++;
+        *(array_to_search) = '\0';
+        array_to_search++;
+    }
+
+    return count_str;
+}
+
+file_in_array read_file_to_string_array(const char *name_of_file)
+{
+    assert(name_of_file != NULL);
+    file_in_array fptr_in_array = {};
+    FILE *fptr = fopen(name_of_file, "r");
+    assert(fptr != NULL);
+
+    struct stat file_info = {};
+    fptr_in_array.is_stat_err = incorr_work_with_stat(name_of_file, &(file_info));
+    if (fptr_in_array.is_stat_err)
+    {
+        return fptr_in_array;
+    }
+
+    char *all_strings_in_file = (char *)calloc(file_info.st_size + 1, sizeof(char));
+    assert(all_strings_in_file != NULL);
+
+    assert(fread(all_strings_in_file, sizeof(char), file_info.st_size, fptr) == file_info.st_size);
+
+    char *search_ptr = all_strings_in_file;
+
+    size_t nmb_of_str = count_strings_by_symbols(search_ptr, '\n');
+
+    fptr_in_array.amount_str = nmb_of_str;
+    fptr_in_array.all_strings_in_file = all_strings_in_file;
+
+    fclose(fptr);
+    return fptr_in_array;
+}
+
+char **create_ptr_array(file_in_array *arr)
+{
+    assert(arr != NULL);
+    char** arr_with_ptr_sz = (char **)calloc(arr->amount_str, sizeof(char*));
+    assert(arr_with_ptr_sz != NULL);
+
+    size_t num_of_elem = 0;
+    arr_with_ptr_sz[num_of_elem] = arr->all_strings_in_file;
+    num_of_elem = 1;
+
+    char *search_ptr = arr->all_strings_in_file;
+
+    for (num_of_elem = 1; num_of_elem <= arr->amount_str; num_of_elem++)
+    {
+        arr_with_ptr_sz[num_of_elem] = search_ptr + strlen(search_ptr) + 1;
+        if (num_of_elem != arr->amount_str)
+            search_ptr += strlen(search_ptr) + 1;
+    }
+
+    return arr_with_ptr_sz;
+}
+
+void put_buffer_to_file(const char *name_of_file, const size_t amount_str, char** search_ptr)
+{
+    assert(name_of_file != NULL);
+
+    FILE *fptr = fopen(name_of_file, "w");
+    assert(fptr != NULL);
+
+    const char *null_term = NULL;
+
+    for (int num_of_str = 0; num_of_str < amount_str; num_of_str++)
+    {
+        fputs(search_ptr[num_of_str], fptr);
+
+        if (num_of_str != amount_str - 1)
+        {
+            fputs("\n", fptr);
+        }
+    }
+
+    fclose(fptr);
+}
