@@ -2,6 +2,8 @@
 #define PARSING_STR_H
 #include <stdlib.h>
 
+const char* const BYTECODE_AUTOR_STR = "Bytecode_BBM_V2\n";
+
 const int AMNT_CMD = 11;
 
 enum CODE_CMD{

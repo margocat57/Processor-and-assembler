@@ -25,6 +25,7 @@ void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file){
 
     FILE *fptr = fopen(name_of_file, "w");
     int temp = 0;
+    fprintf(fptr, BYTECODE_AUTOR_STR);
     fprintf(fptr, "%d ", num_of_str);
     fprintf(fptr, "\n");
 

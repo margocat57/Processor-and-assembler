@@ -4,15 +4,21 @@
 #include "string.h"
 #include <sys/stat.h>
 #include "parse_asm_from_file.h"
+#include "assembler_task/parsing_str.h"
 #include "processor.h"
 
 
 code_and_size load_code(const char* name_of_file){
     code_and_size code = {};
-    char size = {};
+    char author_buffer[255] = {};
 
     FILE *fp = fopen(name_of_file, "r");
-    fscanf(fp, "%d", &code.size);
+    fscanf(fp, "%s", &author_buffer);
+    if (!strcmp(author_buffer, BYTECODE_AUTOR_STR)){
+        // TODO убрать
+        exit(EXIT_FAILURE);
+    }
+    fscanf(fp, " %d", &code.size);
     code.size *= 2;
 
     int* arr = (int*)calloc((code.size - 1) * 2, sizeof(int));
@@ -25,7 +31,7 @@ code_and_size load_code(const char* name_of_file){
 
     int i = 0;
     for(; i < code.size; i++){
-        fscanf(fp, "%d", &arr[i]);
+        fscanf(fp, " %d", &arr[i]);
         fprintf(stderr, "[%d] %d\n", i, arr[i]);
     }
 
