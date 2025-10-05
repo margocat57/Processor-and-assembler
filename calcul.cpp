@@ -20,6 +20,7 @@ void sqrt(processor* intel);
 int calculate(processor* intel){
     int result = 0;
     int temp = 0;
+    processor_dump(intel);
 
     for(; intel->ic < intel->code.size; intel->ic++){
         switch (intel->code.comands[intel->ic])

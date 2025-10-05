@@ -19,7 +19,7 @@ code_and_size load_code(const char* name_of_file){
     int idx = 0;
 
     // TODO fread
-    // TODO change code size
+    // TODO change code size - может и менять не надо память то дешевая
     // char* buffer = (char*)calloc(1, sizeof(int) * (code.size - 1));
     // fprintf(stderr, "%d", fread(buffer, sizeof(char), code.size, fp)); - не работает
 

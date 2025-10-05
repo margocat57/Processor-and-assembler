@@ -1,6 +1,7 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 #include "stack_for_calcul/stack.h"
+#include "stack_for_calcul/mistakes_code.h"
 
 const int REGISTR_MAX_SIZE = 16;
 
@@ -19,6 +20,8 @@ struct processor{
 processor init(const char* name_of_file);
 
 void processor_dump(processor* intel);
+
+stack_err_bytes processor_verify(processor* intel);
 
 void processor_free(processor* intel);
 
