@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include "file_work.h"
+#include "parsing_str.h"
 
 bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file)
 {
@@ -24,7 +25,7 @@ int count_strings_by_symbols(char *array_to_search, char ch)
 {
     assert(array_to_search != NULL);
 
-    int count_str = 1;
+    int count_str = 1; // 1
 
     while ((array_to_search = strchr(array_to_search, ch)) != NULL)
     {
@@ -88,24 +89,29 @@ char **create_ptr_array(file_in_array *arr)
     return arr_with_ptr_sz;
 }
 
-void put_buffer_to_file(const char *name_of_file, const size_t amount_str, char** search_ptr)
+// если это массив строк то можно сделать переносы
+void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 {
     assert(name_of_file != NULL);
+    char buffer[256] = {};
 
     FILE *fptr = fopen(name_of_file, "w");
     assert(fptr != NULL);
 
     const char *null_term = NULL;
 
-    for (int num_of_str = 0; num_of_str < amount_str; num_of_str++)
-    {
-        fputs(search_ptr[num_of_str], fptr);
+    fprintf(fptr, "%d ", cmnds->size);
 
-        if (num_of_str != amount_str - 1)
-        {
-            fputs("\n", fptr);
-        }
+    for(size_t idx = 0; idx < cmnds->size; idx++){
+        fprintf(fptr, "%d ", cmnds->array[idx]);
     }
 
     fclose(fptr);
+}
+
+void free_all(file_in_array *arr, bytecode* cmnds, char ** ptr_arr){
+    // TODO занулить указатели
+    free(arr->all_strings_in_file);
+    free(cmnds->array);
+    free(ptr_arr);
 }

@@ -1,10 +1,14 @@
 #include "parse_asm_from_file.h"
 #include "calcul.h"
+#include "processor.h"
 #include <stdio.h>
 
 int main(){
-    asm_code asm_cd = parser_asm("assembler_task/ass.txt");
-    printf("res = %d\n", calculate(&asm_cd));
-    free(asm_cd.asm_array);
+    processor intel = {};
+    intel = init("assembler_task/ass.txt");
+    int a = calculate(&intel);
+    printf("res = %d", a);
+
+    processor_free(&intel);
     return 0;
 }

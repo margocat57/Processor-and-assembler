@@ -7,117 +7,146 @@
 #include "stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
-void add(stack_t_t* stack, int* temp_mul_add_sub, int* pop);
+void add(processor* intel);
 
-void mul(stack_t_t* stack, int* temp_mul_add_sub, int* pop);
+void mul(processor* intel);
 
-void sub(stack_t_t* stack, int* temp_mul_add_sub, int* pop);
+void div(processor* intel);
 
-void div(stack_t_t* stack, int* temp_mul_add_sub, double temp_div, int* pop);
+void sub(processor* intel);
 
-void sqrt(stack_t_t* stack, int* temp_mul_add_sub, double temp_div, int* pop);
+void sqrt(processor* intel);
 
-int calculate(asm_code* code){
-    stack_t_t* stack = stack_ctor((long long int)code->size, __FILE__, __func__, __LINE__);
+int calculate(processor* intel){
     int result = 0;
-    int temp_mul_add_sub = 1;
-    double temp_div = 1.;
-    int pop = 0;
-    for(size_t cmd = 0; cmd < code->size; ){
-        if(code->asm_array[cmd] == PUSH + 1){
-            stack_push(stack, &(code->asm_array[cmd + 1]));
-            cmd += COMANDS_FOR_STRING[PUSH].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == ADD + 1){
-            temp_mul_add_sub -= 1;
-            add(stack, &temp_mul_add_sub, &pop);
-            cmd += COMANDS_FOR_STRING[ADD].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == MUL + 1){
-            mul(stack, &temp_mul_add_sub, &pop);
-            cmd += COMANDS_FOR_STRING[MUL].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == SUB + 1){
-            temp_mul_add_sub -= 1;
-            sub(stack, &temp_mul_add_sub, &pop);
-            cmd += COMANDS_FOR_STRING[SUB].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == DIV + 1){
-            div(stack, &temp_mul_add_sub, temp_div, &pop);
-            cmd += COMANDS_FOR_STRING[DIV].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == OUT + 1){
-            stack_pop(stack, &result);
-            cmd += COMANDS_FOR_STRING[OUT].shift_ptr;
-        }
-        else if(code->asm_array[cmd] == VLT + 1){
-            stack_free(stack);
+    int temp = 0;
+
+    for(; intel->ic < intel->code.size; intel->ic++){
+        switch (intel->code.comands[intel->ic])
+        {
+        case PUSH:
+            stack_push(intel->stack, &(intel->code.comands[intel->ic + 1]));
+            intel->ic++;
+            // printf("PUSH\n");
+            // stack_dump(intel->stack);
             break;
+        case ADD:
+            // printf("before ADD\n");
+            // stack_dump(intel->stack);
+            add(intel);
+            // printf("after ADD\n");
+            // stack_dump(intel->stack);
+            break;
+        case SUB:
+            sub(intel);
+            break;
+        case DIV:
+            div(intel);
+            break;
+        case MUL:
+            mul(intel);
+            break;
+        case SQRT:
+            sqrt(intel);
+            break;
+        case OUT:
+            stack_pop(intel->stack, &result);
+            break;
+        case VLT:
+            return result;
+        case IN:
+            scanf("%d", &temp);
+            stack_push(intel->stack, &temp);
+            break;
+        case POPR:
+            intel->ic++;
+            // printf("POPR\n");
+            stack_pop(intel->stack, &temp);
+            // stack_dump(intel->stack);
+            intel->registr[(intel->code.comands)[intel->ic]] = temp;
+            break;
+        case PUSHR:
+            intel->ic++;
+            // printf("PUSHR\n");
+            temp = intel->registr[(intel->code.comands)[intel->ic]];
+            stack_push(intel->stack, &temp);
+            // stack_dump(intel->stack);
+            break;
+        default:
+            // TODO убрать иначе по жопе получу
+            exit(EXIT_FAILURE);
         }
-        else if(code->asm_array[cmd] == SQRT + 1){
-            sqrt(stack, &temp_mul_add_sub, temp_div, &pop);
-            cmd += COMANDS_FOR_STRING[SQRT].shift_ptr;
-        }
-        temp_mul_add_sub = 1;
     }
     return result;
 }
 
-void add(stack_t_t* stack, int* temp_mul_add_sub, int* pop){
+void add(processor* intel){
+    int pop = 0;
+    int temp = 0;
     for(int idx = 0; idx < 2; idx ++){
-        stack_pop(stack, pop);
-        *temp_mul_add_sub += *pop;
+        stack_pop(intel->stack, &pop);
+        temp += pop;
     }
-    stack_push(stack, temp_mul_add_sub);
+    stack_push(intel->stack, &temp);
 }
 
-void mul(stack_t_t* stack, int* temp_mul_add_sub, int* pop){
+void mul(processor* intel){
+    int pop = 0;
+    int temp = 1;
     for(int idx = 0; idx < 2; idx ++){
-        stack_pop(stack, pop);
-        *temp_mul_add_sub *= *pop;
+        stack_pop(intel->stack, &pop);
+        temp *= pop;
     }
-    stack_push(stack, temp_mul_add_sub);
+    stack_push(intel->stack, &temp);
 }
 
-void sub(stack_t_t* stack, int* temp_mul_add_sub, int* pop){
-    stack_pop(stack, pop);
-    *temp_mul_add_sub -= *pop;
+void sub(processor* intel){
+    int pop = 0;
+    int temp = 0;
 
-    stack_pop(stack, pop);
-    *temp_mul_add_sub += *pop;
+    stack_pop(intel->stack, &pop);
+    temp -= pop;
 
-    stack_push(stack, temp_mul_add_sub);
+    stack_pop(intel->stack, &pop);
+    temp += pop;
+
+    stack_push(intel->stack, &temp);
 }
 
-void div(stack_t_t* stack, int* temp_mul_add_sub, double temp_div, int* pop){
-    stack_pop(stack, pop);
-    temp_div /= (double)(*pop);
+void div(processor* intel){
+    int pop = 0;
+    double temp = 1;
 
-    stack_pop(stack, pop);
-    temp_div *= *pop;
+    stack_pop(intel->stack, &pop);
+    temp /= (double)pop;
 
-    *temp_mul_add_sub = temp_div;
-    stack_push(stack, temp_mul_add_sub);
+    stack_pop(intel->stack, &pop);
+    temp *= pop;
+
+    pop = temp;
+    stack_push(intel->stack, &pop);
 }
 
-void sqrt(stack_t_t* stack, int* temp_mul_add_sub, double temp_div, int* pop){
+void sqrt(processor* intel){
     double a = 0;
     double b = 0;
     double c = 0;
+    int pop = 0;
+    double temp = 0;
 
-    stack_pop(stack, pop);
-    c = *pop;
+    stack_pop(intel->stack, &pop);
+    c = pop;
 
-    stack_pop(stack, pop);
-    b = *pop;
+    stack_pop(intel->stack, &pop);
+    b = pop;
 
-    stack_pop(stack, pop);
-    a = *pop;
+    stack_pop(intel->stack, &pop);
+    a = pop;
 
-    temp_div = b * b - 4 * a * c;
-    if(temp_div >= 0){
-        temp_div = sqrt(temp_div);
-        *temp_mul_add_sub = round(temp_div);
-        stack_push(stack, temp_mul_add_sub);
+    temp = b * b - 4 * a * c;
+    if(temp >= 0){
+        temp = sqrt(temp);
+        pop = round(temp);
+        stack_push(intel->stack, &pop);
     }
 }

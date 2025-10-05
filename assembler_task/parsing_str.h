@@ -2,58 +2,48 @@
 #define PARSING_STR_H
 #include <stdlib.h>
 
+const int AMNT_CMD = 11;
+
 enum CODE_CMD{
-    PUSH = 0,
-    ADD  = 1,
-    SUB  = 2,
-    DIV  = 3,
-    MUL  = 4,
-    OUT  = 5,
-    VLT  = 6,
-    SQRT = 7
+    PUSH = 1,
+    ADD  = 2,
+    SUB  = 3,
+    DIV  = 4,
+    MUL  = 5,
+    OUT  = 6,
+    VLT  = 7,
+    SQRT = 8,
+    IN   = 9,
+    POPR = 42,
+    PUSHR = 33
 };
 
-struct comands_and_num_of_str{
-    int* comands;
-    size_t size;
-};
-
-struct comands_str{
+struct comands_and_size{
     const char* name_of_comand;
-    size_t shift_ptr;
+    size_t size;
+    CODE_CMD bytecode;
 };
 
-/*
-struct comands_in_struct{
-    size_t amount_str;         
-    comands_digit* comands_digit; 
-};
-*/
-
-
-const comands_str COMANDS_FOR_STRING[]={
-    {"PUSH", 2}, 
-    {"ADD",  1},
-    {"SUB",  1},
-    {"DIV",  1},
-    {"MUL",  1},
-    {"OUT",  1},
-    {"VLT",  0},
-    {"SQRT", 1}
+struct bytecode{
+    int* array;
+    int size;
 };
 
-const comands_str COMANDS_SIZE[]={
-    {"PUSH", 4}, 
-    {"ADD",  3},
-    {"SUB",  3},
-    {"DIV",  3},
-    {"MUL",  3},
-    {"OUT",  3},
-    {"VLT",  3},
-    {"SQRT", 4}
+const comands_and_size COMANDS[]={
+    {"PUSH", 4, PUSH}, 
+    {"ADD",  3, ADD},
+    {"SUB",  3, SUB},
+    {"DIV",  3, DIV},
+    {"MUL",  3, MUL},
+    {"OUT",  3, OUT},
+    {"VLT",  3, VLT},
+    {"SQRT", 4, SQRT},
+    {"IN",   2, IN},
+    {"POPR", 4, POPR},
+    {"PUSHR",5, PUSHR}
 };
 
-
-char** parse_comands(char** ptr_arr, size_t num_of_str);
+void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file);
+// bytecode parse_comands(char** ptr_arr, size_t num_of_str);
 
 #endif //PARSING_STR_H

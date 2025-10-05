@@ -1,6 +1,6 @@
 .PHONY: all clean 
 # эти цели не являются файлами выполняй их даже если соотв файлы существуют
-all: assembler
+all: assembler processor
 # когда запускаем make без цели, то выполняем первую цель после all, то есть записи make stack make all и make эквивалентны
 
 COMP=clang++
@@ -36,7 +36,7 @@ assembler_task/parsing_str.o: assembler_task/parsing_str.cpp
 assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o
 	$(COMP) -o $@ $^
 
-processor: main_proc.o parse_asm_from_file.o assembler_task/file_work.o calcul.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o
+processor: main_proc.o parse_asm_from_file.o assembler_task/file_work.o calcul.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor.o
 	$(COMP) -o $@ $^
 
 #calc: main.o calcul.o file_work.o parsing_str.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o

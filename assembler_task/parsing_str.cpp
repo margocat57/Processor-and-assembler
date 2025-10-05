@@ -21,42 +21,79 @@ const int INT_TO_CHAR = 49;
 // зачем -с
 // почему нужно подключать флаги на этапе компиляции
 
+void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file){
 
-char* str_add(char* str, CODE_CMD code){
-    char* buffer = str + COMANDS_SIZE[code].shift_ptr - 1;
-    str = buffer;
-    str[0]= code + INT_TO_CHAR;
-    return str;
-}
-
-char** parse_comands(char** ptr_arr, size_t num_of_str){
+    FILE *fptr = fopen(name_of_file, "w");
+    int temp = 0;
+    fprintf(fptr, "%d ", num_of_str);
+    fprintf(fptr, "\n");
 
     for(size_t idx = 0; idx < num_of_str; idx++){
-        if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[PUSH].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], PUSH);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[ADD].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], ADD);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[SUB].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], SUB);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[DIV].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], DIV);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[MUL].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], MUL);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[OUT].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], OUT);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[VLT].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], VLT);
-        }
-        else if(strstr(ptr_arr[idx], COMANDS_FOR_STRING[SQRT].name_of_comand)){
-            ptr_arr[idx] = str_add(ptr_arr[idx], SQRT);
+        for(size_t cmd = 0; cmd < AMNT_CMD; cmd++){
+            if(!strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+                
+                if(!strncmp(ptr_arr[idx], "PUSHR", 5) || !strncmp(ptr_arr[idx], "POPR", 4)){
+                    //TODO убрать говнокод
+                    if(!strncmp(ptr_arr[idx], "PUSHR", 5)){
+                        fprintf(fptr, "%d ", COMANDS[10].bytecode);
+                    }
+                    else{
+                        fprintf(fptr, "%d ", COMANDS[9].bytecode);
+                    }
+                    ptr_arr[idx] = strchr(ptr_arr[idx], 'X') - 1;
+                    if('A' <= ptr_arr[idx][0] && ptr_arr[idx][0] <= 'P')
+                        fprintf(fptr, "%d \n", ptr_arr[idx][0] - 'A');
+                    else
+                        exit(EXIT_FAILURE);
+                    break;
+                }
+
+                if(!strncmp(ptr_arr[idx], "PUSH", 4) && strncmp(ptr_arr[idx], "PUSHR", 5)){
+                    fprintf(fptr, "%d ", COMANDS[cmd].bytecode);
+                    ptr_arr[idx] = ptr_arr[idx] + COMANDS[cmd].size;
+                    fprintf(fptr, "%d \n", atoi(ptr_arr[idx]));
+                    break;
+                }
+
+                fprintf(fptr, "%d \n", COMANDS[cmd].bytecode);
+                break;
+            }
         }
     }
 
-    return ptr_arr;
 }
+
+
+/*
+bytecode parse_comands(char** ptr_arr, size_t num_of_str){
+
+    bytecode code = {};
+    int* arr_with_code = (int*)calloc(num_of_str * 2, sizeof(int));
+    size_t count = 0;
+
+    // TODO strtol
+    //TODO check correct output
+    for(size_t idx = 0; idx < num_of_str; idx++, count++){
+        for(size_t cmd = 0; cmd < AMNT_CMD; cmd++){
+            if(strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+                if(cmd == 0){
+                    arr_with_code[count] = PUSH;
+                    ptr_arr[idx] = ptr_arr[idx] + COMANDS[cmd].size;
+                    arr_with_code[count + 1] = atoi(ptr_arr[idx]);
+                    count++;
+                }
+                
+                arr_with_code[count] = COMANDS[cmd].bytecode;
+                break;
+            }
+        }
+    }
+
+    // TODO check realloc
+    arr_with_code = (int*)realloc(arr_with_code, sizeof(int)*count);
+    code.array = arr_with_code;
+    code.size = count;
+
+    return code;
+}
+*/
