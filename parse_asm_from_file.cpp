@@ -15,8 +15,8 @@ code_and_size load_code(const char* name_of_file){
     FILE *fp = fopen(name_of_file, "r");
     fscanf(fp, "%s", &author_buffer);
     if (!strcmp(author_buffer, BYTECODE_AUTOR_STR)){
-        // TODO убрать
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "NOT CORRECT BYTECODE'S AUTHOR OR VERSION");
+        return code;
     }
     fscanf(fp, " %d", &code.size);
     code.size *= 2;
@@ -25,18 +25,17 @@ code_and_size load_code(const char* name_of_file){
     int idx = 0;
 
     // TODO fread
-    // TODO change code size - может и менять не надо память то дешевая
     // char* buffer = (char*)calloc(1, sizeof(int) * (code.size - 1));
     // fprintf(stderr, "%d", fread(buffer, sizeof(char), code.size, fp)); - не работает
 
-    int i = 0;
-    for(; i < code.size; i++){
-        fscanf(fp, " %d", &arr[i]);
-        fprintf(stderr, "[%d] %d\n", i, arr[i]);
+    int elem = 0;
+    for(; elem < code.size; elem++){
+        fscanf(fp, " %d", &arr[elem]);
+        // fprintf(stderr, "[%d] %d\n", elem, arr[elem]);
     }
 
     fclose(fp);
-    code.size = i;
+    code.size = elem;
     code.comands = arr;
 
     return code;

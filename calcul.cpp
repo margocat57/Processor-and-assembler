@@ -7,15 +7,15 @@
 #include "stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
-void add(processor* intel);
+static void add(processor* intel);
 
-void mul(processor* intel);
+static void mul(processor* intel);
 
-void div(processor* intel);
+static void div(processor* intel);
 
-void sub(processor* intel);
+static void sub(processor* intel);
 
-void sqrt(processor* intel);
+static void sqrt(processor* intel);
 
 int calculate(processor* intel){
     int result = 0;
@@ -74,14 +74,14 @@ int calculate(processor* intel){
             // stack_dump(intel->stack);
             break;
         default:
-            // TODO убрать иначе по жопе получу
-            exit(EXIT_FAILURE);
+            fprintf(stderr, "INCORRECT CMD CODE");
+            return result;
         }
     }
     return result;
 }
 
-void add(processor* intel){
+static void add(processor* intel){
     int pop = 0;
     int temp = 0;
     for(int idx = 0; idx < 2; idx ++){
@@ -91,7 +91,7 @@ void add(processor* intel){
     stack_push(intel->stack, &temp);
 }
 
-void mul(processor* intel){
+static void mul(processor* intel){
     int pop = 0;
     int temp = 1;
     for(int idx = 0; idx < 2; idx ++){
@@ -101,7 +101,7 @@ void mul(processor* intel){
     stack_push(intel->stack, &temp);
 }
 
-void sub(processor* intel){
+static void sub(processor* intel){
     int pop = 0;
     int temp = 0;
 
@@ -114,7 +114,7 @@ void sub(processor* intel){
     stack_push(intel->stack, &temp);
 }
 
-void div(processor* intel){
+static void div(processor* intel){
     int pop = 0;
     double temp = 1;
 
@@ -128,7 +128,7 @@ void div(processor* intel){
     stack_push(intel->stack, &pop);
 }
 
-void sqrt(processor* intel){
+static void sqrt(processor* intel){
     double a = 0;
     double b = 0;
     double c = 0;

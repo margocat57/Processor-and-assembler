@@ -110,8 +110,9 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 }
 
 void free_all(file_in_array *arr, bytecode* cmnds, char ** ptr_arr){
-    // TODO занулить указатели
     free(arr->all_strings_in_file);
+    arr->all_strings_in_file = NULL;
     free(cmnds->array);
+    cmnds->array = NULL;
     free(ptr_arr);
 }

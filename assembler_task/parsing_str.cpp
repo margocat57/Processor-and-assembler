@@ -3,18 +3,6 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
-
-const int INT_TO_CHAR = 49;
-// сделать перевод на ассемблерный язык
-// программы ассемлер и процессор
-// ассемблер переводит в байткод
-// процессор исполняет
-// проверить что дискриминат нормально работает
-// раздельная компиляция с двумя мэйнами
-// system assembler 
-// system processor
-
-
 // ключ -о чем сборка в мэйке лучше сборки в одной строке
 // сколько стадий в мэйке
 // чем собрка в 2 стадии лучше сборки в одну стадию
@@ -24,28 +12,27 @@ const int INT_TO_CHAR = 49;
 void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file){
 
     FILE *fptr = fopen(name_of_file, "w");
-    int temp = 0;
     fprintf(fptr, BYTECODE_AUTOR_STR);
     fprintf(fptr, "%d ", num_of_str);
     fprintf(fptr, "\n");
 
     for(size_t idx = 0; idx < num_of_str; idx++){
+        ptr_arr[idx] += strspn(ptr_arr[idx], " \t\n\r\f\v");
+
         for(size_t cmd = 0; cmd < AMNT_CMD; cmd++){
             if(!strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                 
-                if(!strncmp(ptr_arr[idx], "PUSHR", 5) || !strncmp(ptr_arr[idx], "POPR", 4)){
-                    //TODO убрать говнокод
-                    if(!strncmp(ptr_arr[idx], "PUSHR", 5)){
-                        fprintf(fptr, "%d ", COMANDS[10].bytecode);
-                    }
-                    else{
-                        fprintf(fptr, "%d ", COMANDS[9].bytecode);
-                    }
+                if (!strncmp(ptr_arr[idx], "PUSHR", 5) || !strncmp(ptr_arr[idx], "POPR", 4)) {
+                    int cmd_index = !strncmp(ptr_arr[idx], "PUSHR", 5) ? 10 : 9;
+                    fprintf(fptr, "%d ", COMANDS[cmd_index].bytecode);
+
                     ptr_arr[idx] = strchr(ptr_arr[idx], 'X') - 1;
-                    if('A' <= ptr_arr[idx][0] && ptr_arr[idx][0] <= 'P')
-                        fprintf(fptr, "%d \n", ptr_arr[idx][0] - 'A');
-                    else
-                        exit(EXIT_FAILURE);
+                    if ('A' > ptr_arr[idx][0] || ptr_arr[idx][0] > 'P'){
+                        fprintf(stderr, "Incorrect registr R%cX", ptr_arr[idx][0]);
+                        return;
+                    }
+
+                    fprintf(fptr, "%d \n", ptr_arr[idx][0] - 'A');
                     break;
                 }
 

@@ -41,6 +41,7 @@ stack_err_bytes processor_verify(processor* intel){
     if(intel->ic < 0 || intel->ic > intel->code.size){
         printf_to_log_file("Pointer to bytecode element out of index\n");
         printf_to_log_file("pointer %d\n", intel->ic);
+        DEBUG(processor_dump(intel));
         error = error | INCORR_BYTECODE_ELEM_PTR;
     }
     error = error | stack_verify(intel->stack);
@@ -48,7 +49,9 @@ stack_err_bytes processor_verify(processor* intel){
 }
 
 void processor_free(processor* intel){
-    // TODO check null ptr
+    // TODO verify
     stack_free(intel->stack);
+    intel->stack = NULL;
     free(intel->code.comands);
+    intel->code.comands = NULL;
 }
