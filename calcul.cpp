@@ -46,21 +46,37 @@ res_and_err calculate(processor* intel){
             // stack_dump(intel->stack);
             break;
         case SUB:
+            // printf("bef SUB\n");
+            // stack_dump(intel->stack);
             sub(intel);
+            // printf("after SUB\n");
+            // stack_dump(intel->stack);
             break;
         case DIV:
+            // printf("bef DIV\n");
+            // stack_dump(intel->stack);
             div(intel);
+            // printf("after DIV\n");
+            // stack_dump(intel->stack);
             break;
         case MUL:
+            // printf("bef mul\n");
+            // stack_dump(intel->stack);
             mul(intel);
+            // printf("aft mul\n");
+            // stack_dump(intel->stack);
             break;
         case SQRT:
             sqrt(intel);
+            // printf("SQRT\n");
+            // stack_dump(intel->stack);
             break;
         case OUT:
             stack_pop(intel->stack, &result);
+            res.res = result;
             break;
         case VLT:
+            res.proc_err = processor_verify(intel);
             return res;
         case IN:
             scanf("%d", &temp);
@@ -137,24 +153,13 @@ static void div(processor* intel){
 }
 
 static void sqrt(processor* intel){
-    double a = 0;
-    double b = 0;
-    double c = 0;
     int pop = 0;
     double temp = 0;
 
     stack_pop(intel->stack, &pop);
-    c = pop;
 
-    stack_pop(intel->stack, &pop);
-    b = pop;
-
-    stack_pop(intel->stack, &pop);
-    a = pop;
-
-    temp = b * b - 4 * a * c;
-    if(temp >= 0){
-        temp = sqrt(temp);
+    if(pop >= 0){
+        temp = sqrt(pop);
         pop = round(temp);
         stack_push(intel->stack, &pop);
     }
