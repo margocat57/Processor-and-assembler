@@ -4,6 +4,7 @@
 #include "assembler_task/parsing_str.h"
 #include "calcul.h"
 #include "stack_for_calcul/stack_func.h"
+#include "stack_for_calcul/my_assert.h"
 #include "stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
@@ -17,7 +18,13 @@ static void sub(processor* intel);
 
 static void sqrt(processor* intel);
 
-int calculate(processor* intel){
+res_and_err calculate(processor* intel){
+    res_and_err res = {};
+    res.proc_err = processor_verify(intel);
+    if(res.proc_err){
+        return res;
+    }
+
     int result = 0;
     int temp = 0;
     processor_dump(intel);
@@ -54,7 +61,7 @@ int calculate(processor* intel){
             stack_pop(intel->stack, &result);
             break;
         case VLT:
-            return result;
+            return res;
         case IN:
             scanf("%d", &temp);
             stack_push(intel->stack, &temp);
@@ -75,10 +82,11 @@ int calculate(processor* intel){
             break;
         default:
             fprintf(stderr, "INCORRECT CMD CODE");
-            return result;
+            return res;
         }
     }
-    return result;
+    res.proc_err = processor_verify(intel);
+    return res;
 }
 
 static void add(processor* intel){

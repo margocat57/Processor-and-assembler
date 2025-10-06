@@ -4,7 +4,7 @@
 #include "stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
-int calculate(processor* intel);
+res_and_err calculate(processor* intel);
 
 
 #endif //CALCUL_H

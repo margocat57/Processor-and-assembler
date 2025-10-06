@@ -17,6 +17,11 @@ struct processor{
     int registr[REGISTR_MAX_SIZE];
 };
 
+struct res_and_err{
+    int res;
+    stack_err_bytes proc_err;
+};
+
 processor init(const char* name_of_file);
 
 void processor_dump(processor* intel);
