@@ -27,13 +27,17 @@ res_and_err calculate(processor* intel){
 
     int result = 0;
     int temp = 0;
+    char c = 'o'; // for pause debug
     processor_dump(intel);
 
-    for(; intel->ic < intel->code.size; intel->ic++){
+    for(; intel->ic < intel->code.size;){
         switch (intel->code.comands[intel->ic])
         {
+        fprintf(stderr, "intel->code.comands[intel->ic] = %d", intel->code.comands[intel->ic]);
         case PUSH:
             stack_push(intel->stack, &(intel->code.comands[intel->ic + 1]));
+            intel->ic++;
+            // FIXME пахнет говнокодом убрать
             intel->ic++;
             // printf("PUSH\n");
             // stack_dump(intel->stack);
@@ -42,6 +46,7 @@ res_and_err calculate(processor* intel){
             // printf("before ADD\n");
             // stack_dump(intel->stack);
             add(intel);
+            intel->ic++;
             // printf("after ADD\n");
             // stack_dump(intel->stack);
             break;
@@ -49,6 +54,7 @@ res_and_err calculate(processor* intel){
             // printf("bef SUB\n");
             // stack_dump(intel->stack);
             sub(intel);
+            intel->ic++;
             // printf("after SUB\n");
             // stack_dump(intel->stack);
             break;
@@ -56,6 +62,7 @@ res_and_err calculate(processor* intel){
             // printf("bef DIV\n");
             // stack_dump(intel->stack);
             div(intel);
+            intel->ic++;
             // printf("after DIV\n");
             // stack_dump(intel->stack);
             break;
@@ -63,24 +70,30 @@ res_and_err calculate(processor* intel){
             // printf("bef mul\n");
             // stack_dump(intel->stack);
             mul(intel);
+            intel->ic++;
             // printf("aft mul\n");
             // stack_dump(intel->stack);
             break;
         case SQRT:
             sqrt(intel);
+            intel->ic++;
             // printf("SQRT\n");
             // stack_dump(intel->stack);
             break;
         case OUT:
             stack_pop(intel->stack, &result);
             res.res = result;
+            printf("res = %d\n", res.res);
+            intel->ic++;
             break;
         case VLT:
             res.proc_err = processor_verify(intel);
+            intel->ic++;
             return res;
         case IN:
             scanf("%d", &temp);
             stack_push(intel->stack, &temp);
+            intel->ic++;
             break;
         case POPR:
             intel->ic++;
@@ -88,15 +101,24 @@ res_and_err calculate(processor* intel){
             stack_pop(intel->stack, &temp);
             // stack_dump(intel->stack);
             intel->registr[(intel->code.comands)[intel->ic]] = temp;
+            intel->ic++;
             break;
         case PUSHR:
             intel->ic++;
             // printf("PUSHR\n");
             temp = intel->registr[(intel->code.comands)[intel->ic]];
             stack_push(intel->stack, &temp);
+            intel->ic++;
             // stack_dump(intel->stack);
             break;
+        case JMP:
+            intel -> ic = intel->code.comands[intel -> ic + 1];
+            printf("Введите символ чтобы продолжить\n");
+            c = getchar();
+            break;
         default:
+            printf("intel -> ic = %d", intel -> ic);
+            printf("intel->code.comands[intel -> ic] = %d", intel->code.comands[intel -> ic]);
             fprintf(stderr, "INCORRECT CMD CODE");
             return res;
         }

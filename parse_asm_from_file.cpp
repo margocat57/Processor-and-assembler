@@ -31,7 +31,7 @@ code_and_size load_code(const char* name_of_file){
     int elem = 0;
     for(; elem < code.size; elem++){
         fscanf(fp, " %d", &arr[elem]);
-        // fprintf(stderr, "[%d] %d\n", elem, arr[elem]);
+        fprintf(stderr, "[%d] %d\n", elem, arr[elem]);
     }
 
     fclose(fp);

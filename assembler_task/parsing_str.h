@@ -16,8 +16,9 @@ enum CODE_CMD{
     VLT  = 7,
     SQRT = 8,
     IN   = 9,
+    JMP = 10,
     POPR = 42,
-    PUSHR = 33
+    PUSHR = 33,
 };
 
 struct comands_and_size{
