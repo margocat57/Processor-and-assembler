@@ -59,5 +59,6 @@ const comands_and_size COMANDS[]={
 
 void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file);
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);
+bytecode parser(char** ptr_arr, size_t num_of_str);
 
 #endif //PARSING_STR_H

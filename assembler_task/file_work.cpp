@@ -100,11 +100,18 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 
     const char *null_term = NULL;
 
+    fprintf(fptr, BYTECODE_AUTOR_STR);
     fprintf(fptr, "%d ", cmnds->size);
+    
+    fflush(fptr);
 
+    fwrite(cmnds->array, sizeof(int), cmnds->size, fptr);
+
+    /*
     for(size_t idx = 0; idx < cmnds->size; idx++){
         fprintf(fptr, "%d ", cmnds->array[idx]);
     }
+    */
 
     fclose(fptr);
 }

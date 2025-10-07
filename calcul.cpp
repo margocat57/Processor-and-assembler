@@ -234,16 +234,49 @@ static void sqrt(processor* intel){
 }
 
 // компаратор!!!
+// можно вставить свитч и сделать енам с условиями и тут передавать условие как некое число из енама
+// допустим если нам передали JB то  мы вызываем переходим к соотвествующему условию свича и вызываем конкретную функцию
 
 static void jump_if_condition(processor* intel, bool (*compare_suc)(int, int)){
     int temp1 = 0;
     int temp2 = 0;
     stack_pop(intel->stack, &temp1);
     stack_pop(intel->stack, &temp2);
-    // fprintf(stderr, "%d %d\n", temp1, temp2);
-    // bool c = compare_suc(temp1, temp2);
-    // fprintf(stderr, "%d", c);
     if(compare_suc(temp1, temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+// версия 6 функций - обязательно
+static void jump_if_condition_sw(processor* intel, CODE_CMD cmd){
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    switch(cmd){
+        case JB:
+            #define COMP <
+            break;
+        case JBE:
+            #define COMP <=
+            break;
+        case JA:
+            #define COMP >
+            break;
+        case JAE:
+            #define COMP >=
+            break;
+        case JE:
+            #define COMP ==
+            break;
+        case JNE:
+            #define COMP !=
+            break;
+    }
+    if(temp1 COMP temp2){
         intel -> ic = intel->code.comands[intel -> ic + 1];
         return;
     }
