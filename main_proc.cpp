@@ -6,8 +6,8 @@
 int main(){
     processor intel = {};
     intel = init("assembler_task/ass.txt");
-    res_and_err a = calculate(&intel);
-    printf("res = %d", a.res);
+    stack_err_bytes a = calculate(&intel);
+    // printf("res = %d", a.res);
 
     processor_free(&intel);
     return 0;

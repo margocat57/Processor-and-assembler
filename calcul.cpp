@@ -18,10 +18,39 @@ static void sub(processor* intel);
 
 static void sqrt(processor* intel);
 
-res_and_err calculate(processor* intel){
-    res_and_err res = {};
-    res.proc_err = processor_verify(intel);
-    if(res.proc_err){
+static void jump_if_condition(processor* intel, bool (*compare_suc)(int, int));
+
+// --------------------------------------
+// TODO файлик с реализациями компараторов 
+bool eq(int a, int b){
+    return a == b ? true : false;
+}
+
+bool neq(int a, int b){
+    return a != b ? true : false;
+}
+
+bool more(int a, int b){
+    return a > b ? true : false;
+}
+
+bool more_eq(int a, int b){
+    return a >= b ? true : false;
+}
+
+bool less(int a, int b){
+    return a < b ? true : false;
+}
+
+bool less_eq(int a, int b){
+    return a <= b ? true : false;
+}
+// --------------------------------------
+
+stack_err_bytes calculate(processor* intel){
+    stack_err_bytes res = NO_MISTAKE;
+    res = processor_verify(intel);
+    if(res){
         return res;
     }
 
@@ -82,13 +111,12 @@ res_and_err calculate(processor* intel){
             break;
         case OUT:
             stack_pop(intel->stack, &result);
-            res.res = result;
-            printf("res = %d\n", res.res);
+            printf("result = %d\n", result);
             intel->ic++;
             break;
         case VLT:
-            res.proc_err = processor_verify(intel);
-            intel->ic++;
+            res = processor_verify(intel);
+            // intel->ic++;
             return res;
         case IN:
             scanf("%d", &temp);
@@ -111,19 +139,37 @@ res_and_err calculate(processor* intel){
             intel->ic++;
             // stack_dump(intel->stack);
             break;
-        case JMP:
-            intel -> ic = intel->code.comands[intel -> ic + 1];
-            printf("Введите символ чтобы продолжить\n");
+        case JB:
+            jump_if_condition(intel, less);
+            // for pause
+            printf("Enter char to continue\n");
             c = getchar();
             break;
+        case JBE:
+            jump_if_condition(intel, less_eq);
+            printf("Enter char to continue\n");
+            c = getchar();
+            break;
+        case JA:
+            jump_if_condition(intel, more);
+            break;
+        case JAE:
+            jump_if_condition(intel, more_eq);
+            break;
+        case JE:
+            jump_if_condition(intel, eq);
+            break;
+        case JNE:
+            jump_if_condition(intel, neq);
+            break;
         default:
-            printf("intel -> ic = %d", intel -> ic);
-            printf("intel->code.comands[intel -> ic] = %d", intel->code.comands[intel -> ic]);
+            // printf("intel -> ic = %d", intel -> ic);
+            // printf("intel->code.comands[intel -> ic] = %d", intel->code.comands[intel -> ic]);
             fprintf(stderr, "INCORRECT CMD CODE");
             return res;
         }
     }
-    res.proc_err = processor_verify(intel);
+    res = processor_verify(intel);
     return res;
 }
 
@@ -185,4 +231,22 @@ static void sqrt(processor* intel){
         pop = round(temp);
         stack_push(intel->stack, &pop);
     }
+}
+
+// компаратор!!!
+
+static void jump_if_condition(processor* intel, bool (*compare_suc)(int, int)){
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    // fprintf(stderr, "%d %d\n", temp1, temp2);
+    // bool c = compare_suc(temp1, temp2);
+    // fprintf(stderr, "%d", c);
+    if(compare_suc(temp1, temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
 }

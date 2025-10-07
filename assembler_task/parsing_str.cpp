@@ -9,6 +9,7 @@
 // зачем -с
 // почему нужно подключать флаги на этапе компиляции
 
+// TODO switch easyier
 void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file){
 
     FILE *fptr = fopen(name_of_file, "w");
@@ -18,10 +19,20 @@ void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file){
 
     for(size_t idx = 0; idx < num_of_str; idx++){
         ptr_arr[idx] += strspn(ptr_arr[idx], " \t\n\r\f\v");
-
+        // fprintf(stderr, "%s\n", ptr_arr[idx]);
+        // fprintf(stderr, "!strncmp(ptr_arr[idx], JBE, 3) = %d\n", !strncmp(ptr_arr[idx], "JBE", 3));
         for(size_t cmd = 0; cmd < AMNT_CMD; cmd++){
             if(!strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                
+                if (!strncmp(ptr_arr[idx], "JBE", 3) || !strncmp(ptr_arr[idx], "JAE", 3)) {
+                    int cmd_index = !strncmp(ptr_arr[idx], "JBE", 3) ? 12 : 14;
+                    fprintf(fptr, "%d ", COMANDS[cmd_index].bytecode);
+
+                    ptr_arr[idx] = ptr_arr[idx] + 3; // размер команды
+
+                    fprintf(fptr, "%d \n", atoi(ptr_arr[idx]));
+                    break;
+                }
+
                 if (!strncmp(ptr_arr[idx], "PUSHR", 5) || !strncmp(ptr_arr[idx], "POPR", 4)) {
                     int cmd_index = !strncmp(ptr_arr[idx], "PUSHR", 5) ? 10 : 9;
                     fprintf(fptr, "%d ", COMANDS[cmd_index].bytecode);
