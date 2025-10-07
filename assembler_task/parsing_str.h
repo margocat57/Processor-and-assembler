@@ -4,7 +4,7 @@
 
 const char* const BYTECODE_AUTOR_STR = "Bytecode_BBM_V2\n";
 
-const int AMNT_CMD = 17;
+const int AMNT_CMD = 18;
 
 enum CODE_CMD{
     PUSH = 1,
@@ -22,6 +22,7 @@ enum CODE_CMD{
     JAE  = 13,
     JE   = 14,
     JNE  = 15,
+    JUMP = 16,
     POPR = 42,
     PUSHR = 33,
 };
@@ -54,7 +55,8 @@ const comands_and_size COMANDS[]={
     {"JA"   , 2,  JA},//13
     {"JAE"  , 3, JAE},//14
     {"JE"   , 2,  JE},//15
-    {"JNE"  , 3, JNE}//16
+    {"JNE"  , 3, JNE},//16
+    {"JUMP" , 4, JUMP}//16
 };
 
 void parse_comands(char** ptr_arr, size_t num_of_str, const char* name_of_file);

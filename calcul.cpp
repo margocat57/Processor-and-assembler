@@ -162,6 +162,9 @@ stack_err_bytes calculate(processor* intel){
         case JNE:
             jump_if_condition(intel, neq);
             break;
+        case JUMP:
+            intel -> ic = intel->code.comands[intel -> ic + 1];
+            break;
         default:
             // printf("intel -> ic = %d", intel -> ic);
             // printf("intel->code.comands[intel -> ic] = %d", intel->code.comands[intel -> ic]);
