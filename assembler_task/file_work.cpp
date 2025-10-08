@@ -95,15 +95,27 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
     assert(name_of_file != NULL);
     char buffer[256] = {};
 
-    FILE *fptr = fopen(name_of_file, "w");
+    FILE *fptr = fopen(name_of_file, "wb");
     assert(fptr != NULL);
 
     const char *null_term = NULL;
 
-    fprintf(fptr, BYTECODE_AUTOR_STR);
-    fprintf(fptr, "%d ", cmnds->size);
+    fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
+    // fprintf(fptr, BYTECODE_AUTOR_STR);
+
+    long pos_after_author = ftell(fptr);
+    printf("Position after author: %ld\n", pos_after_author);
+
+    printf("%lu\n", cmnds->size);
     
-    fflush(fptr);
+    fwrite(&cmnds->size, sizeof(size_t), 1, fptr);
+    
+    long pos_after_size = ftell(fptr);
+    printf("Position after size: %ld\n", pos_after_size);
+    printf("Bytes written for size: %ld\n", pos_after_size - pos_after_author);
+    // fprintf(fptr, "%d ", cmnds->size);
+    
+    // fflush(fptr);
 
     fwrite(cmnds->array, sizeof(int), cmnds->size, fptr);
 
@@ -118,8 +130,9 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 
 void free_all(file_in_array *arr, bytecode* cmnds, char ** ptr_arr){
     free(arr->all_strings_in_file);
-    arr->all_strings_in_file = NULL;
+    // arr->all_strings_in_file = NULL;
     free(cmnds->array);
-    cmnds->array = NULL;
+    // cmnds->array = NULL;
     free(ptr_arr);
 }
+
