@@ -29,7 +29,7 @@ ADD
 PUSHR RAX
 PUSH 2
 MUL
-DIV // 1-й корень посчитался
+DIV 
 PUSHR RBX
 PUSH -1
 MUL
@@ -38,7 +38,7 @@ SUB
 PUSHR RAX
 PUSH 2
 MUL
-DIV // 2-й корень посчитался
+DIV 
 JE :3
 OUT
 OUT
@@ -47,10 +47,10 @@ VLT
 PUSH 0
 OUT
 VLT
-:2
-PUSH -1
+:3
 OUT
 VLT
-:3
+:2
+PUSH -1
 OUT
 VLT

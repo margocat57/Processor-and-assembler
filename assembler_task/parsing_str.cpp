@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
+// стоит добавить метки как в ассемблере
+
 // size_t length = strcspn(str, " \t\n\r\f\v");
 // проблема - в одном случае возвращает пустую структуру а в других ничего не возвращает
 static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
@@ -23,7 +25,6 @@ static int* metki(char** ptr_arr, size_t num_of_str){
 
     for(size_t idx = 0; idx < num_of_str; idx++, count++){
         //FIXME не нравится, долго
-        // printf("%s count = %d\n", ptr_arr[idx], count);
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
             if((cmd == 17 || cmd == 18 || cmd == JBE 
             || cmd == JAE || cmd == JE || cmd == JNE 
@@ -41,6 +42,13 @@ static int* metki(char** ptr_arr, size_t num_of_str){
             metki_arr[metka] = count + 1;
         }
     }
+
+    // DEBUG
+    for(int i = 0; i < 10; i++){
+        printf("[%d]: %d\n", i, metki_arr[i]);
+    }
+    printf("---------\n");
+
     return metki_arr;
 }
 
