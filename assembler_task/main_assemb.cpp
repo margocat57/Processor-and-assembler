@@ -8,8 +8,6 @@ int main(){
     fprintf(stderr, "%p\n", &file_arr.all_strings_in_file);
     char** arr = create_ptr_array(&file_arr);
     fprintf(stderr, "%p\n", arr);
-    //comands_and_num_of_str cmnds = {};
-    // parse_comands(arr, file_arr.amount_str, "assembler_task/ass.txt");
     bytecode code = parser(arr, file_arr.amount_str);
     put_buffer_to_file("assembler_task/ass.bin", &code);
     fprintf(stderr, "%p\n", code.array);

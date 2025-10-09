@@ -57,7 +57,7 @@ static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str){
                 break;
             }
 
-            if(cmd == JBE || cmd == JAE){
+            if(cmd == JBE || cmd == JAE || cmd == JE || cmd == JNE || cmd == JA || cmd == JB){
                 jbe_jae(cmd, count, arr_with_code, current_str);
                 break;
             }

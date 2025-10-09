@@ -13,6 +13,8 @@
         int t1 = 0, t2 = 0; \
         stack_pop((intel)->stack, &t1); \
         stack_pop((intel)->stack, &t2); \
+        stack_push((intel)->stack, &t1); \
+        stack_push((intel)->stack, &t2); \
         jump_if_condition_sw(intel, t1 comp t2); \
     } while(0)
 
@@ -91,6 +93,9 @@ stack_err_bytes calculate(processor* intel){
 
     // TODO: tabli4ka
     for(; intel->ic < intel->code.size;){
+        // printf("before:\n");
+        // stack_dump(intel->stack);
+        // printf("%d\n", intel->code.comands[intel->ic]);
         switch (intel->code.comands[intel->ic])
         {
         case PUSH:  DO_CASE(proc_push(intel))
@@ -115,8 +120,12 @@ stack_err_bytes calculate(processor* intel){
             fprintf(stderr, "INCORRECT CMD CODE");
             return res;
         }
-        printf("Enter char to continue\n");
-        c = getchar();
+        // begin DEBUG code
+        // printf("after:\n");
+        // stack_dump(intel->stack);
+        // printf("Enter char to continue\n");
+        // c = getchar();
+        // end DEBUG code
     }
     res = processor_verify(intel);
     return res;
@@ -254,3 +263,84 @@ static void jump_if_condition_sw(processor* intel, bool condition){
     intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
     intel->ic++; // перепрыгиваем на следующую команду
 }
+
+/*
+6 функций чтобы были
+static void more(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 > temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+static void more_eq(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 >= temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+static void less(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 < temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+static void less_eq(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 <= temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+static void eq(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 == temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+
+static void not_eq(processor* intel{
+    int temp1 = 0;
+    int temp2 = 0;
+    stack_pop(intel->stack, &temp1);
+    stack_pop(intel->stack, &temp2);
+    if(temp1 != temp2)){
+        intel -> ic = intel->code.comands[intel -> ic + 1];
+        return;
+    }
+    intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки
+    intel->ic++; // перепрыгиваем на следующую команду
+}
+*/

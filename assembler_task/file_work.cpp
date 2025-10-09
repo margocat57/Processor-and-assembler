@@ -102,8 +102,6 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 
     fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
 
-    printf("%lu\n", sizeof(cmnds->size));
-    
     fwrite(&cmnds->size, sizeof(size_t), 1, fptr);
 
     fwrite(cmnds->array, sizeof(int), cmnds->size, fptr);
