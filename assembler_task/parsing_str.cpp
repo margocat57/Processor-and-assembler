@@ -63,6 +63,7 @@ bytecode parser(char** ptr_arr, size_t num_of_str){
     code.array = arr_with_code;
     code.size = count;
     free(metki_arr);
+    // TODO заполнять нулями
 
     // DEBUG_FOR
     for(int i = 0; i < code.size; i++){
