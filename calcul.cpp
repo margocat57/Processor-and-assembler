@@ -89,7 +89,7 @@ stack_err_bytes calculate(processor* intel){
 
     int result = 0;
     char c = 'o'; // for pause debug
-    processor_dump(intel);
+    // processor_dump(intel);
 
     // TODO: tabli4ka
     for(; intel->ic < intel->code.size;){
@@ -156,6 +156,7 @@ static void pushr(processor* intel){
 
 static void in(processor* intel){
     int temp = 0;
+    printf("Input coefficent of square equation:\n");
     scanf("%d", &temp);
     stack_push(intel->stack, &temp);
     intel->ic++;

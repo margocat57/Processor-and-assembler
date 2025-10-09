@@ -3,23 +3,50 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
-// ключ -о чем сборка в мэйке лучше сборки в одной строке
-// сколько стадий в мэйке
-// чем собрка в 2 стадии лучше сборки в одну стадию
-// зачем -с
-// почему нужно подключать флаги на этапе компиляции
-
 // size_t length = strcspn(str, " \t\n\r\f\v");
 // проблема - в одном случае возвращает пустую структуру а в других ничего не возвращает
-static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str);
+static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
 
 static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str);
 
-static void jbe_jae(int cmd, size_t* count, int* arr_with_code, char* current_str);
+static void jmp_with_condition(int cmd, size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
 
 static void push(int cmd, size_t* count, int* arr_with_code, char* current_str);
 
+static int* metki(char** ptr_arr, size_t num_of_str);
+
+static int* metki(char** ptr_arr, size_t num_of_str){
+    int* metki_arr = (int*)calloc(sizeof(int), 10); // динамически
+    char* current_str = NULL;
+    int count = 0;
+    int metka = 0;
+
+    for(size_t idx = 0; idx < num_of_str; idx++, count++){
+        //FIXME не нравится, долго
+        // printf("%s count = %d\n", ptr_arr[idx], count);
+        for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
+            if((cmd == 17 || cmd == 18 || cmd == JBE 
+            || cmd == JAE || cmd == JE || cmd == JNE 
+            || cmd == JA || cmd == JB || cmd == PUSH) &&
+            !strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+                count++;
+                break;
+            }
+        }
+        //FIXME проблема дублирования JAE :1 :1
+        current_str = strchr(ptr_arr[idx], ':');
+        if(current_str){
+            current_str++;
+            metka = atoi(current_str);
+            metki_arr[metka] = count + 1;
+        }
+    }
+    return metki_arr;
+}
+
 bytecode parser(char** ptr_arr, size_t num_of_str){
+    int* metki_arr = metki(ptr_arr, num_of_str);
+
     bytecode code = {};
     int* arr_with_code = (int*)calloc(num_of_str * 2, sizeof(int));
     size_t count = 0;
@@ -29,12 +56,13 @@ bytecode parser(char** ptr_arr, size_t num_of_str){
         current_str = ptr_arr[idx];
         current_str += strspn(current_str, " \t\n\r\f\v");
 
-        if(!parse_cmnds(&count, arr_with_code, current_str)){
+        if(!parse_cmnds(&count, arr_with_code, current_str, metki_arr)){
             return code;
         }
     }
     code.array = arr_with_code;
     code.size = count;
+    free(metki_arr);
 
     // DEBUG_FOR
     for(int i = 0; i < code.size; i++){
@@ -44,7 +72,7 @@ bytecode parser(char** ptr_arr, size_t num_of_str){
     return code;
 }
 
-static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str){
+static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, int* metki_arr){
     size_t length = 0;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
         length = strcspn(current_str, " \t\n\r\f\v");
@@ -58,7 +86,7 @@ static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str){
             }
 
             if(cmd == JBE || cmd == JAE || cmd == JE || cmd == JNE || cmd == JA || cmd == JB){
-                jbe_jae(cmd, count, arr_with_code, current_str);
+                jmp_with_condition(cmd, count, arr_with_code, current_str, metki_arr);
                 break;
             }
 
@@ -81,12 +109,14 @@ static void push(int cmd, size_t* count, int* arr_with_code, char* current_str){
     (*count)++;
 }
 
-static void jbe_jae(int cmd, size_t* count, int* arr_with_code, char* current_str){
+static void jmp_with_condition(int cmd, size_t* count, int* arr_with_code, char* current_str, int* metki_arr){
     arr_with_code[*count] = cmd;
     (*count)++;
 
-    current_str = current_str + COMANDS[cmd].size + 1; // размер команды
-    arr_with_code[*count] = atoi(current_str);
+    current_str = strchr(current_str, ':'); // доходим до метки
+    current_str++; // доходим до числа
+
+    arr_with_code[*count] = metki_arr[atoi(current_str)];
 }
 
 static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str){

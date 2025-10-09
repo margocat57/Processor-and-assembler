@@ -12,6 +12,7 @@ int main(){
     put_buffer_to_file("assembler_task/ass.bin", &code);
     fprintf(stderr, "%p\n", code.array);
 
+    // TODO to func and memset(0)
     free(file_arr.all_strings_in_file);
     free(arr);
     free(code.array);
