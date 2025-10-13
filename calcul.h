@@ -5,6 +5,6 @@
 #include "parse_asm_from_file.h"
 
 
-stack_err_bytes calculate(processor* intel);
+stack_err_bytes do_processor_comands(processor* intel);
 
 #endif //CALCUL_H

@@ -13,9 +13,12 @@ code_and_size load_code(const char* name_of_file){
     char author_buffer[255] = {};
 
     FILE *fp = fopen(name_of_file, "rb");
+    if(!fp){
+        fprintf(stderr, "Can't open file");
+        return code;
+    }
 
-    // FIXME убрать константу
-    fread(&author_buffer, sizeof(char), 15, fp);
+    fread(&author_buffer, sizeof(char), ELEM_IN_STR, fp);
 
     printf("%s\n", author_buffer);
     printf("%s\n", BYTECODE_AUTOR_STR);
@@ -28,7 +31,10 @@ code_and_size load_code(const char* name_of_file){
     fread(&code.size, sizeof(size_t), 1, fp);
 
     int* arr = (int*)calloc((code.size + 1), sizeof(int));
-    assert(arr != NULL);
+    if(!arr){
+        fprintf(stderr, "Can't allocate memory for bytecode array");
+        return code;
+    }
     int idx = 0;
 
     fread(arr, sizeof(int), code.size, fp);

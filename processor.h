@@ -28,7 +28,7 @@ void processor_dump(processor* intel);
 
 stack_err_bytes processor_verify(processor* intel);
 
-void processor_free(processor* intel);
+stack_err_bytes processor_free(processor* intel);
 
 enum registr{
     RAX = 0,

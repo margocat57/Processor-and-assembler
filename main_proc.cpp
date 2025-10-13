@@ -6,7 +6,7 @@
 int main(){
     processor intel = {};
     intel = init("assembler_task/ass.bin");
-    stack_err_bytes a = calculate(&intel);
+    stack_err_bytes a = do_processor_comands(&intel);
     // printf("res = %d", a.res);
 
     processor_free(&intel);

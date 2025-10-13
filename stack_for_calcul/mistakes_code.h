@@ -22,7 +22,8 @@ enum stack_err_t {
     //!< Mistakes at processor work
     INCORR_BYTECODE_PTR          =  0x8000000000002000ULL, // (1 << 63) | (1 << 13),
     INCORR_PROCESSOR_PTR         =  0x8000000000004000ULL, // (1 << 63) | (1 << 14),
-    INCORR_BYTECODE_ELEM_PTR     =  0x8000000000008000ULL // (1 << 63) | (1 << 15),
+    INCORR_BYTECODE_ELEM_PTR     =  0x8000000000008000ULL, // (1 << 63) | (1 << 15),
+    INCORR_COMAND                =  0x8000000000010000ULL, // (1 << 63) | (1 << 16),
 };
 
 

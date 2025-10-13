@@ -100,6 +100,7 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
 
     const char *null_term = NULL;
 
+    // прочекать что функции безопасные
     fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
 
     fwrite(&cmnds->size, sizeof(size_t), 1, fptr);

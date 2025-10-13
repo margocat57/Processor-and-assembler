@@ -7,8 +7,24 @@
 
 processor init(const char* name_of_file){
     processor intel = {};
+
+    if(!name_of_file){
+        fprintf(stderr, "NULL pointer to string with file name");
+        return intel;
+    }
+
     intel.code = load_code(name_of_file);
+    if(!intel.code.comands){
+        fprintf(stderr, "NULL pointer to bytecode array");
+        return intel;
+    }
+
     intel.stack = stack_ctor(intel.code.size, __FILE__, __func__, __LINE__);
+    if(!intel.code.comands){
+        fprintf(stderr, "Can't allocate stack memory to stack");
+        return intel;
+    }
+
     intel.ic = 0;
     return intel;
 }
@@ -48,10 +64,16 @@ stack_err_bytes processor_verify(processor* intel){
     return error;
 }
 
-void processor_free(processor* intel){
-    // TODO verify
+stack_err_bytes processor_free(processor* intel){
+    stack_err_bytes err = processor_verify(intel);
+    if(err){
+        return err;
+    }
+
     stack_free(intel->stack);
     intel->stack = NULL;
     free(intel->code.comands);
     intel->code.comands = NULL;
+
+    return NO_MISTAKE;
 }

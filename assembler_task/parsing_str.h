@@ -4,6 +4,8 @@
 
 const char* const BYTECODE_AUTOR_STR = "Bytecode_BBM_V2";
 
+const int ELEM_IN_STR = 15;
+
 const int AMNT_CMD = 19;
 
 enum CODE_CMD{

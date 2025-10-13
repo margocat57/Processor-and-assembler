@@ -19,6 +19,11 @@ static int* metki(char** ptr_arr, size_t num_of_str);
 
 static int* metki(char** ptr_arr, size_t num_of_str){
     int* metki_arr = (int*)calloc(sizeof(int), 10); // динамически
+    if(!metki_arr){
+        fprintf(stderr, "Can't allocate memory for metki array");
+        return NULL;
+    }
+
     char* current_str = NULL;
     int count = 0;
     int metka = 0;
@@ -53,10 +58,20 @@ static int* metki(char** ptr_arr, size_t num_of_str){
 }
 
 bytecode parser(char** ptr_arr, size_t num_of_str){
-    int* metki_arr = metki(ptr_arr, num_of_str);
-
     bytecode code = {};
+
+    int* metki_arr = metki(ptr_arr, num_of_str);
+    if(!metki_arr){
+        fprintf(stderr, "Can't allocate memory for metki array");
+        return code;
+    }
+
     int* arr_with_code = (int*)calloc(num_of_str * 2, sizeof(int));
+    if(!metki_arr){
+        fprintf(stderr, "Can't allocate memory for bytecode array");
+        return code;
+    }
+
     size_t count = 0;
     char* current_str = NULL;
 
