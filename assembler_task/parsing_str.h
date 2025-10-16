@@ -29,6 +29,8 @@ enum CODE_CMD{
     JMP  = 16,
     CALL = 17,
     RET  = 18,
+    PUSHM = 19,
+    POPM = 20,
     POPR = 42,
     PUSHR = 33,
 };
@@ -45,27 +47,29 @@ struct bytecode{
 };
 
 const comands_and_size COMANDS[]={
-    {},                //0
-    {"PUSH", 4, PUSH}, //1
-    {"ADD",  3, ADD},  //2
-    {"SUB",  3, SUB},  //3
-    {"DIV",  3, DIV},  //4
-    {"MUL",  3, MUL},  //5
-    {"OUT",  3, OUT},  //6
-    {"VLT",  3, VLT},  //7
-    {"SQRT", 4, SQRT}, //8
-    {"IN",   2, IN},   //9
-    {"JB"   , 2,  JB}, //10
-    {"JBE"  , 3, JBE}, //11
-    {"JA"   , 2,  JA}, //12
-    {"JAE"  , 3, JAE}, //13
-    {"JE"   , 2,  JE}, //14
-    {"JNE"  , 3, JNE}, //15
-    {"JMP"  , 3, JMP}, //16
-    {"CALL" , 4, CALL}, //17
-    {"RET"  , 3, RET}, //18
-    {"POPR", 4, POPR}, //19
-    {"PUSHR",5, PUSHR},//20
+    {},                 //0
+    {"PUSH", 4, PUSH},  //1
+    {"ADD" ,  3, ADD},   //2
+    {"SUB" ,  3, SUB},   //3
+    {"DIV" ,  3, DIV},   //4
+    {"MUL" ,  3, MUL},   //5
+    {"OUT" ,  3, OUT},   //6
+    {"VLT" ,  3, VLT},   //7
+    {"SQRT" , 4, SQRT},  //8
+    {"IN"   , 2, IN},    //9
+    {"JB"   , 2,  JB},   //10
+    {"JBE"  , 3, JBE},   //11
+    {"JA"   , 2,  JA},   //12
+    {"JAE"  , 3, JAE},   //13
+    {"JE"   , 2,  JE},   //14
+    {"JNE"  , 3, JNE},   //15
+    {"JMP"  , 3, JMP},   //16
+    {"CALL" , 4, CALL},  //17
+    {"RET"  , 3, RET},   //18
+    {"PUSHM", 5, PUSHM}, //19
+    {"POPM", 4, POPM},  //20
+    {"POPR", 4, POPR},  //21
+    {"PUSHR",5, PUSHR}, //22
 };
 
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);

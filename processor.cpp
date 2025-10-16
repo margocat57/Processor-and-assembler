@@ -49,6 +49,7 @@ void processor_dump(processor* intel){
     for(size_t idx_reg = 0; idx_reg < REGISTR_MAX_SIZE; idx_reg++){
         printf_to_log_file("R%cX: %d\n", idx_reg + 'A', intel->registr[idx_reg]);
     }
+    //TODO вывод оперативной памяти
     stack_dump(intel->stack);
     // добавить стек адресов возврата
 }

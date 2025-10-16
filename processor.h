@@ -4,6 +4,7 @@
 #include "stack_for_calcul/mistakes_code.h"
 
 const int REGISTR_MAX_SIZE = 16;
+const int RAM_MAX_SIZE = 100;
 
 struct code_and_size{
     int* comands;
@@ -16,6 +17,7 @@ struct processor{
     size_t ic;
     int registr[REGISTR_MAX_SIZE];
     stack_t_t* call_stack;
+    int RAM[RAM_MAX_SIZE];
 };
 
 struct res_and_err{

@@ -33,9 +33,10 @@ static int* metki(char** ptr_arr, size_t num_of_str){
         //FIXME не нравится, долго
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
             ptr_arr[idx] += strspn(ptr_arr[idx], " \t\n\r\f\v");
-            if((cmd == 19 || cmd == 20 || cmd == JBE 
+            if((cmd == 21 || cmd == 22 || cmd == JBE 
             || cmd == JAE || cmd == JE || cmd == JNE 
-            || cmd == JA || cmd == JB || cmd == PUSH || cmd == CALL) &&
+            || cmd == JA  || cmd == JB || cmd == PUSH 
+            || cmd == CALL || cmd == PUSHM || cmd == POPM) &&
             !strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                 count++;
                 break;
@@ -118,8 +119,16 @@ static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, in
         length = strcspn(current_str, " \t\n\r\f\v");
 
         if(length == COMANDS[cmd].size && !strncmp(current_str, COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-            if(cmd == 19 || cmd == 20){
+            if(cmd == 21 || cmd == 22){
                 if(!pushr_popr(cmd, count, arr_with_code, current_str)){
+                    return false;
+                }
+                command_found = true;
+                break;
+            }
+
+            if(cmd == PUSHM || cmd == POPM){
+                if(!pushm_popm(cmd, count, arr_with_code, current_str)){
                     return false;
                 }
                 command_found = true;
@@ -165,8 +174,24 @@ static void func_with_metka(int cmd, size_t* count, int* arr_with_code, char* cu
 }
 
 static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str){
-    int cmd_index = cmd == 20 ? PUSHR : POPR;
+    int cmd_index = cmd == 22 ? PUSHR : POPR;
     arr_with_code[*count] = cmd_index;
+
+    (*count)++;
+    current_str = current_str + COMANDS[cmd].size + 1;
+
+    current_str = strchr(current_str, 'X') - 1;
+    if ('A' > current_str[0] || current_str[0] > 'P'){
+        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
+        return false;
+    }
+
+    arr_with_code[*count] = current_str[0] - 'A';
+    return true;
+}
+
+static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str){
+    arr_with_code[*count] = cmd;
 
     (*count)++;
     current_str = current_str + COMANDS[cmd].size + 1;

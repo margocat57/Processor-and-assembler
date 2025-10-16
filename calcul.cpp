@@ -51,6 +51,10 @@ static stack_err_bytes popr(processor* intel);
 
 static stack_err_bytes pushr(processor* intel);
 
+static stack_err_bytes popm(processor* intel);
+
+static stack_err_bytes pushm(processor* intel);
+
 static stack_err_bytes call(processor* intel);
 
 static stack_err_bytes ret(processor* intel);
@@ -88,6 +92,8 @@ stack_err_bytes do_processor_comands(processor* intel){
         case JMP:   DO_CASE(jump_if_condition_sw(intel, 1))
         case CALL:  DO_CASE(call(intel)) 
         case RET:   DO_CASE(ret(intel))
+        case PUSHM: DO_CASE(pushm(intel))
+        case POPM:  DO_CASE(popm(intel))
         case VLT:   return processor_verify(intel);
         default:
             fprintf(stderr, "INCORRECT CMD CODE");
@@ -126,6 +132,24 @@ static stack_err_bytes pushr(processor* intel){
     int temp = 0;
     intel->ic++;
     temp = intel->registr[(intel->code.comands)[intel->ic]];
+    CHECK_STACK_ERR(stack_push(intel->stack, &temp));
+    intel->ic++;
+    return NO_MISTAKE;
+}
+
+static stack_err_bytes popm(processor* intel){
+    int temp = 0;
+    intel->ic++;
+    CHECK_STACK_ERR(stack_pop(intel->stack, &temp));  
+    intel->RAM[(intel->code.comands)[intel->ic]] = temp;
+    intel->ic++;
+    return NO_MISTAKE;
+}
+
+static stack_err_bytes pushm(processor* intel){
+    int temp = 0;
+    intel->ic++;
+    temp = intel->RAM[(intel->code.comands)[intel->ic]];
     CHECK_STACK_ERR(stack_push(intel->stack, &temp));
     intel->ic++;
     return NO_MISTAKE;
