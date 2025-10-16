@@ -4,6 +4,7 @@
 #include "stack_for_calcul/mistakes_code.h"
 #include "stack_for_calcul/log.h"
 #include <stdio.h>
+#include <string.h>
 
 processor init(const char* name_of_file){
     processor intel = {};
@@ -20,6 +21,13 @@ processor init(const char* name_of_file){
     }
 
     intel.stack = stack_ctor(intel.code.size, __FILE__, __func__, __LINE__);
+    if(!intel.code.comands){
+        fprintf(stderr, "Can't allocate stack memory to stackfor bytecode");
+        return intel;
+    }
+
+    // пока создаем размером в код так как память дешевая, вопрос как лучше открытый
+    intel.call_stack = stack_ctor(intel.code.size, __FILE__, __func__, __LINE__);
     if(!intel.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stack");
         return intel;
@@ -42,6 +50,7 @@ void processor_dump(processor* intel){
         printf_to_log_file("R%cX: %d\n", idx_reg + 'A', intel->registr[idx_reg]);
     }
     stack_dump(intel->stack);
+    // добавить стек адресов возврата
 }
 
 stack_err_bytes processor_verify(processor* intel){
@@ -70,10 +79,16 @@ stack_err_bytes processor_free(processor* intel){
         return err;
     }
 
+    // вообще хороший вопрос что лучше занулять указатель(как будто это как раз и делает free)
     stack_free(intel->stack);
     intel->stack = NULL;
+
+    memset(intel->code.comands, 0, intel->code.size * sizeof(int));
     free(intel->code.comands);
     intel->code.comands = NULL;
+
+    stack_free(intel->call_stack);
+    intel->call_stack = NULL;
 
     return NO_MISTAKE;
 }

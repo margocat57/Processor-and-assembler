@@ -2,11 +2,13 @@
 #define PARSING_STR_H
 #include <stdlib.h>
 
+// структура ассемблера - что добавить
+
 const char* const BYTECODE_AUTOR_STR = "Bytecode_BBM_V2";
 
 const int ELEM_IN_STR = 15;
 
-const int AMNT_CMD = 19;
+const int AMNT_CMD = 21;
 
 enum CODE_CMD{
     PUSH = 1,
@@ -25,6 +27,8 @@ enum CODE_CMD{
     JE   = 14,
     JNE  = 15,
     JMP  = 16,
+    CALL = 17,
+    RET  = 18,
     POPR = 42,
     PUSHR = 33,
 };
@@ -58,8 +62,10 @@ const comands_and_size COMANDS[]={
     {"JE"   , 2,  JE}, //14
     {"JNE"  , 3, JNE}, //15
     {"JMP"  , 3, JMP}, //16
-    {"POPR", 4, POPR}, //17
-    {"PUSHR",5, PUSHR},//18
+    {"CALL" , 4, CALL}, //17
+    {"RET"  , 3, RET}, //18
+    {"POPR", 4, POPR}, //19
+    {"PUSHR",5, PUSHR},//20
 };
 
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);

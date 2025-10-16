@@ -15,6 +15,7 @@ struct processor{
     struct code_and_size code;
     size_t ic;
     int registr[REGISTR_MAX_SIZE];
+    stack_t_t* call_stack;
 };
 
 struct res_and_err{

@@ -341,6 +341,7 @@ stack_err_bytes stack_free(stack_t_t *stack)
     if (MY_SAFE_ASSERT(stack_verify_error == NO_MISTAKE))
         return stack_verify_error;
 
+    memset(stack->data, 0, stack->capacity * sizeof(stack_elem_t));
     free(stack->data);
     stack->data = NULL;
     free(stack);

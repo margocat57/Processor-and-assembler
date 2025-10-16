@@ -4,7 +4,7 @@
 
 int main(){
     
-    file_in_array file_arr = read_file_to_string_array("assembler_task/calc.txt");
+    file_in_array file_arr = read_file_to_string_array("assembler_task/calc_fact.txt");
     fprintf(stderr, "%p\n", &file_arr.all_strings_in_file);
     char** arr = create_ptr_array(&file_arr);
     fprintf(stderr, "%p\n", arr);
@@ -14,10 +14,11 @@ int main(){
 
     // TODO to func and memset(0)
     free(file_arr.all_strings_in_file);
-    free(arr);
     free(code.array);
+    free(arr);
     // free(code.array);
-    // free_all(&file_arr, &cmnds, arr);
+    // free(code.array);
+    // free_all(&file_arr, &code, arr);
 
     return 0;
 }

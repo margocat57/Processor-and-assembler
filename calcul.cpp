@@ -15,8 +15,6 @@
         int t1 = 0, t2 = 0; \
         CHECK_STACK_ERR(stack_pop((intel)->stack, &t1)); \
         CHECK_STACK_ERR(stack_pop((intel)->stack, &t2)); \
-        CHECK_STACK_ERR(stack_push((intel)->stack, &t1)); \
-        CHECK_STACK_ERR(stack_push((intel)->stack, &t2)); \
         jump_if_condition_sw(intel, t1 comp t2); \
     } while(0);
 
@@ -53,6 +51,10 @@ static stack_err_bytes popr(processor* intel);
 
 static stack_err_bytes pushr(processor* intel);
 
+static stack_err_bytes call(processor* intel);
+
+static stack_err_bytes ret(processor* intel);
+
 stack_err_bytes do_processor_comands(processor* intel){
     stack_err_bytes res = NO_MISTAKE;
     res = processor_verify(intel);
@@ -83,7 +85,9 @@ stack_err_bytes do_processor_comands(processor* intel){
         case JAE:   DO_CASE(JUMP_IF(intel, MORE_EQ)) 
         case JE:    DO_CASE(JUMP_IF(intel, EQ))
         case JNE:   DO_CASE(JUMP_IF(intel, NOT_EQ))
-        case JMP:   DO_CASE(jump_if_condition_sw(intel, 1)) 
+        case JMP:   DO_CASE(jump_if_condition_sw(intel, 1))
+        case CALL:  DO_CASE(call(intel)) 
+        case RET:   DO_CASE(ret(intel))
         case VLT:   return processor_verify(intel);
         default:
             fprintf(stderr, "INCORRECT CMD CODE");
@@ -92,7 +96,7 @@ stack_err_bytes do_processor_comands(processor* intel){
         }
         // begin DEBUG code
         // printf("after:\n");
-        // stack_dump(intel->stack);
+        // processor_dump(intel);
         // printf("Enter char to continue\n");
         // c = getchar();
         // end DEBUG code
@@ -112,7 +116,7 @@ static stack_err_bytes proc_push(processor* intel){
 static stack_err_bytes popr(processor* intel){
     int temp = 0;
     intel->ic++;
-    CHECK_STACK_ERR(stack_pop(intel->stack, &temp));
+    CHECK_STACK_ERR(stack_pop(intel->stack, &temp));  
     intel->registr[(intel->code.comands)[intel->ic]] = temp;
     intel->ic++;
     return NO_MISTAKE;
@@ -215,9 +219,25 @@ static stack_err_bytes sqrt(processor* intel){
     return NO_MISTAKE;
 }
 
+static stack_err_bytes call(processor* intel){
+    intel->ic += 2; // увеличиваем счетчик на 2 чтобы добраться до команды, которая следуер за call и меткой
+    int return_address = (int)intel->ic;
+    CHECK_STACK_ERR(stack_push(intel->call_stack, &return_address));
 
-// функция с дефайнами как ассерт на стеке
-// версия 6 функций - обязательно
+    intel->ic--; //  перескакиваем на прошлую команду
+    intel -> ic = intel->code.comands[intel -> ic]; 
+
+    return NO_MISTAKE;
+}
+
+static stack_err_bytes ret(processor* intel){
+    int idx = 0;
+    CHECK_STACK_ERR(stack_pop(intel->call_stack, &idx));
+    intel->ic = idx; //да будет ругаться, что из int в size_t но стек на интах и тут ничего не поделаешь
+
+    return NO_MISTAKE;
+}
+
 
 static stack_err_bytes jump_if_condition_sw(processor* intel, bool condition){
     if(condition){
