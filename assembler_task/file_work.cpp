@@ -37,9 +37,10 @@ int count_strings_by_symbols(char *array_to_search, char ch)
     return count_str;
 }
 
-file_in_array read_file_to_string_array(const char *name_of_file)
+assembler read_file_to_string_array(const char *name_of_file)
 {
     assert(name_of_file != NULL);
+    assembler assembl = {};
     file_in_array fptr_in_array = {};
     FILE *fptr = fopen(name_of_file, "r");
     assert(fptr != NULL);
@@ -48,7 +49,7 @@ file_in_array read_file_to_string_array(const char *name_of_file)
     fptr_in_array.is_stat_err = incorr_work_with_stat(name_of_file, &(file_info));
     if (fptr_in_array.is_stat_err)
     {
-        return fptr_in_array;
+        return assembl;
     }
 
     char *all_strings_in_file = (char *)calloc(file_info.st_size + 1, sizeof(char));
@@ -63,34 +64,37 @@ file_in_array read_file_to_string_array(const char *name_of_file)
     fptr_in_array.amount_str = nmb_of_str;
     fptr_in_array.all_strings_in_file = all_strings_in_file;
 
+    assembl.file_in_arr = fptr_in_array;
+
     fclose(fptr);
-    return fptr_in_array;
+    return assembl;
 }
 
-char **create_ptr_array(file_in_array *arr)
+assembler* create_ptr_array(assembler* assembl)
 {
-    assert(arr != NULL);
-    char** arr_with_ptr_sz = (char **)calloc(arr->amount_str, sizeof(char*));
+    assert(assembl->file_in_arr.all_strings_in_file != NULL);
+    char** arr_with_ptr_sz = (char **)calloc(assembl->file_in_arr.amount_str, sizeof(char*));
     assert(arr_with_ptr_sz != NULL);
 
     size_t num_of_elem = 0;
-    arr_with_ptr_sz[num_of_elem] = arr->all_strings_in_file;
+    arr_with_ptr_sz[num_of_elem] = assembl->file_in_arr.all_strings_in_file;
     num_of_elem = 1;
 
-    char *search_ptr = arr->all_strings_in_file;
+    char *search_ptr = assembl->file_in_arr.all_strings_in_file;
 
-    for (num_of_elem = 1; num_of_elem <= arr->amount_str; num_of_elem++)
+    for (num_of_elem = 1; num_of_elem <= assembl->file_in_arr.amount_str; num_of_elem++)
     {
         arr_with_ptr_sz[num_of_elem] = search_ptr + strlen(search_ptr) + 1;
-        if (num_of_elem != arr->amount_str)
+        if (num_of_elem != assembl->file_in_arr.amount_str)
             search_ptr += strlen(search_ptr) + 1;
     }
+    assembl->ptr_array=arr_with_ptr_sz;
 
-    return arr_with_ptr_sz;
+    return assembl;
 }
 
 // если это массив строк то можно сделать переносы
-void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
+void put_buffer_to_file(const char *name_of_file, assembler* assembl)
 {
     assert(name_of_file != NULL);
     char buffer[256] = {};
@@ -103,17 +107,17 @@ void put_buffer_to_file(const char *name_of_file, bytecode* cmnds)
     // прочекать что функции безопасные
     fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
 
-    fwrite(&cmnds->size, sizeof(size_t), 1, fptr);
+    fwrite(&assembl->bytecode_struct.size, sizeof(size_t), 1, fptr);
 
-    fwrite(cmnds->array, sizeof(int), cmnds->size, fptr);
+    fwrite(assembl->bytecode_struct.array, sizeof(int), assembl->bytecode_struct.size, fptr);
 
     fclose(fptr);
 }
 
-void free_all(file_in_array *arr, bytecode* cmnds, char ** ptr_arr){
-    free(arr->all_strings_in_file);
+void free_all(assembler* assembl){
+    free(assembl->file_in_arr.all_strings_in_file);
     // arr->all_strings_in_file = NULL;
-    free(cmnds->array);
+    free(assembl->bytecode_struct.array);
     // cmnds->array = NULL;
-    free(ptr_arr);
+    free(assembl->ptr_array);
 }

@@ -1,6 +1,7 @@
 #ifndef PARSING_STR_H
 #define PARSING_STR_H
 #include <stdlib.h>
+#include "assembler_struct.h"
 
 // структура ассемблера - что добавить
 
@@ -8,7 +9,9 @@ const char* const BYTECODE_AUTOR_STR = "Bytecode_BBM_V2";
 
 const int ELEM_IN_STR = 15;
 
-const int AMNT_CMD = 21;
+const int AMNT_CMD = 23;
+
+const int MAX_NUMBER_OF_METKI = 10;
 
 enum CODE_CMD{
     PUSH = 1,
@@ -41,11 +44,6 @@ struct comands_and_size{
     CODE_CMD bytecode;
 };
 
-struct bytecode{
-    int* array;
-    size_t size;
-};
-
 const comands_and_size COMANDS[]={
     {},                 //0
     {"PUSH", 4, PUSH},  //1
@@ -73,6 +71,6 @@ const comands_and_size COMANDS[]={
 };
 
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);
-bytecode parser(char** ptr_arr, size_t num_of_str);
+assembler* parser(assembler* assembl);
 
 #endif //PARSING_STR_H

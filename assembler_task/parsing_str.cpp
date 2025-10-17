@@ -5,20 +5,21 @@
 
 // стоит добавить метки как в ассемблере
 
-// size_t length = strcspn(str, " \t\n\r\f\v");
 // проблема - в одном случае возвращает пустую структуру а в других ничего не возвращает
 static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
 
 static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str);
 
+static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str);
+
 static void func_with_metka(int cmd, size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
 
 static void push(int cmd, size_t* count, int* arr_with_code, char* current_str);
 
-static int* metki(char** ptr_arr, size_t num_of_str);
+static int* metki(assembler* assembl);
 
-static int* metki(char** ptr_arr, size_t num_of_str){
-    int* metki_arr = (int*)calloc(sizeof(int), 10); // динамически
+static int* metki(assembler* assembl){
+    int* metki_arr = (int*)calloc(sizeof(int), MAX_NUMBER_OF_METKI); 
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
         return NULL;
@@ -28,25 +29,25 @@ static int* metki(char** ptr_arr, size_t num_of_str){
     int count = 0;
     int metka = 0;
 
-    for(size_t idx = 0; idx < num_of_str; idx++){
+    for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
         printf("%d\n", count);
         //FIXME не нравится, долго
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
-            ptr_arr[idx] += strspn(ptr_arr[idx], " \t\n\r\f\v");
+            assembl->ptr_array[idx] += strspn(assembl->ptr_array[idx], " \t\n\r\f\v");
             if((cmd == 21 || cmd == 22 || cmd == JBE 
             || cmd == JAE || cmd == JE || cmd == JNE 
             || cmd == JA  || cmd == JB || cmd == PUSH 
             || cmd == CALL || cmd == PUSHM || cmd == POPM) &&
-            !strncmp(ptr_arr[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+            !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                 count++;
                 break;
             }
         }
         // можно сделать так что если типо команды перед меткой нет только тогда мы изменяем значения массива меток
 
-        current_str = strchr(ptr_arr[idx], ':');
+        current_str = strchr(assembl->ptr_array[idx], ':');
         // зачем такое условное условие затем чтобы если метка была до команды JUMP :метка мы тоже прыгали по метке
-        if(current_str && (current_str == ptr_arr[idx] + strspn(ptr_arr[idx], " \t\n\r\f\v"))){
+        if(current_str && (current_str == assembl->ptr_array[idx] + strspn(assembl->ptr_array[idx], " \t\n\r\f\v"))){
             current_str++;
             metka = atoi(current_str);
             metki_arr[metka] = count;   //- 1;
@@ -64,27 +65,27 @@ static int* metki(char** ptr_arr, size_t num_of_str){
     return metki_arr;
 }
 
-bytecode parser(char** ptr_arr, size_t num_of_str){
+assembler* parser(assembler* assembl){
     bytecode code = {};
 
-    int* metki_arr = metki(ptr_arr, num_of_str);
+    int* metki_arr = metki(assembl);
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
-        return code;
+        return assembl;
     }
 
-    int* arr_with_code = (int*)calloc(num_of_str * 2, sizeof(int));
+    int* arr_with_code = (int*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(int));
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for bytecode array");
-        return code;
+        return assembl;
     }
 
     size_t count = 0;
     char* current_str = NULL;
-    fprintf(stderr, "%d\n", num_of_str);
+    fprintf(stderr, "%d\n", assembl->file_in_arr.amount_str);
 
-    for(size_t idx = 0; idx < num_of_str; idx++){
-        current_str = ptr_arr[idx];
+    for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
+        current_str = assembl->ptr_array[idx];
         if(!current_str){
             fprintf(stderr, "current ptr is null, parsing stopped");
             break;
@@ -92,24 +93,26 @@ bytecode parser(char** ptr_arr, size_t num_of_str){
 
         current_str += strspn(current_str, " \t\n\r\f\v");
 
-        // fprintf(stderr, "%d\n", idx);
-        // fprintf(stderr, "%s\n", current_str);
-
         if(!parse_cmnds(&count, arr_with_code, current_str, metki_arr)){
-            return code;
+            return assembl;
         }
+        fprintf(stderr, "%s\n", current_str);
+        fprintf(stderr, "%d\n", count);
     }
     code.array = arr_with_code;
     code.size = count;
+    fprintf(stderr, "%d\n", count);
+    memset(metki_arr, 0, MAX_NUMBER_OF_METKI * sizeof(int));
     free(metki_arr);
-    // TODO заполнять нулями
 
     // DEBUG_FOR
     for(int i = 0; i < code.size; i++){
         fprintf(stderr, "[%d]: %d\n", i, arr_with_code[i]);
     }
 
-    return code;
+    assembl->bytecode_struct = code;
+
+    return assembl;
 }
 
 static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, int* metki_arr){
@@ -152,6 +155,7 @@ static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, in
             break;
         }
     }
+    fprintf(stderr, "command_found = %d\n", command_found);
     if(command_found) (*count)++;
     return true;
 }
@@ -182,7 +186,7 @@ static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current
 
     current_str = strchr(current_str, 'X') - 1;
     if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
+        fprintf(stderr, "Incorrect registr R%cXin parsing pushr/popr cmd", current_str[0]);
         return false;
     }
 
@@ -190,8 +194,6 @@ static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current
     return true;
 }
 
-// TODO здесь более сложная логика так как 100 элементов
-// nbgj
 static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str){
     arr_with_code[*count] = cmd;
 
@@ -200,7 +202,7 @@ static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current
 
     current_str = strchr(current_str, 'X') - 1;
     if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
+        fprintf(stderr, "Incorrect registr R%cX in parsing pushm/popm cmd", current_str[0]);
         return false;
     }
 

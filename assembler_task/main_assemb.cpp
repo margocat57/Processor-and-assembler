@@ -4,18 +4,13 @@
 
 int main(){
     
-    file_in_array file_arr = read_file_to_string_array("assembler_task/calc_fact.txt");
-    fprintf(stderr, "%p\n", &file_arr.all_strings_in_file);
-    char** arr = create_ptr_array(&file_arr);
-    fprintf(stderr, "%p\n", arr);
-    bytecode code = parser(arr, file_arr.amount_str);
-    put_buffer_to_file("assembler_task/ass.bin", &code);
-    fprintf(stderr, "%p\n", code.array);
+    assembler asssembl = read_file_to_string_array("assembler_task/calc_fact.txt");
+    create_ptr_array(&asssembl);
+    parser(&asssembl);
+    put_buffer_to_file("assembler_task/ass.bin", &asssembl);
 
     // TODO to func and memset(0)
-    free(file_arr.all_strings_in_file);
-    free(code.array);
-    free(arr);
+    free_all(&asssembl);
     // free(code.array);
     // free(code.array);
     // free_all(&file_arr, &code, arr);
