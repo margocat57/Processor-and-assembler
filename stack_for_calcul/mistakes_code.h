@@ -24,6 +24,8 @@ enum stack_err_t {
     INCORR_PROCESSOR_PTR         =  0x8000000000004000ULL, // (1 << 63) | (1 << 14),
     INCORR_BYTECODE_ELEM_PTR     =  0x8000000000008000ULL, // (1 << 63) | (1 << 15),
     INCORR_COMAND                =  0x8000000000010000ULL, // (1 << 63) | (1 << 16),
+    REGISTR_OVERFLOW             =  0x8000000000020000ULL, // (1 << 63) | (1 << 17),  
+    RAM_OVERFLOW                 =  0x8000000000040000ULL, // (1 << 63) | (1 << 18),  
 };
 
 

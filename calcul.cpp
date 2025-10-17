@@ -138,20 +138,32 @@ static stack_err_bytes pushr(processor* intel){
 }
 
 static stack_err_bytes popm(processor* intel){
+    if(intel->ram_counter >= RAM_MAX_SIZE){
+        fprintf(stderr, "RAM is full - can't add elem to ram");
+        intel->ic += 2;
+        return RAM_OVERFLOW;
+    }
     int temp = 0;
     intel->ic++;
-    CHECK_STACK_ERR(stack_pop(intel->stack, &temp));  
-    intel->RAM[(intel->code.comands)[intel->ic]] = temp;
+
+    intel->RAM[intel->ram_counter] = intel->registr[(intel->code.comands)[intel->ic]];
     intel->ic++;
+    intel->ram_counter++;
+
     return NO_MISTAKE;
 }
 
 static stack_err_bytes pushm(processor* intel){
     int temp = 0;
+    intel->ram_counter--;
+
     intel->ic++;
-    temp = intel->RAM[(intel->code.comands)[intel->ic]];
+    temp = intel->RAM[intel->ram_counter];
+
     CHECK_STACK_ERR(stack_push(intel->stack, &temp));
     intel->ic++;
+
+    intel->ram_counter++;
     return NO_MISTAKE;
 }
 

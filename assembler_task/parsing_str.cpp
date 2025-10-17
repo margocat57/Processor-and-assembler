@@ -190,6 +190,8 @@ static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current
     return true;
 }
 
+// TODO здесь более сложная логика так как 100 элементов
+// nbgj
 static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str){
     arr_with_code[*count] = cmd;
 

@@ -18,6 +18,7 @@ struct processor{
     int registr[REGISTR_MAX_SIZE];
     stack_t_t* call_stack;
     int RAM[RAM_MAX_SIZE];
+    int ram_counter;
 };
 
 struct res_and_err{

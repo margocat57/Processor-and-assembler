@@ -33,6 +33,7 @@ processor init(const char* name_of_file){
         return intel;
     }
 
+    intel.ram_counter = 0;
     intel.ic = 0;
     return intel;
 }
