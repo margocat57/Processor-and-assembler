@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
-// стоит добавить метки как в ассемблере
-
+// стоит добавить листинг как в ассемблере
+// также посмотреть логику функций - имхо она корявая
 // проблема - в одном случае возвращает пустую структуру а в других ничего не возвращает
 static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
 
@@ -32,8 +32,10 @@ static int* metki(assembler* assembl){
     for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
         printf("%d\n", count);
         //FIXME не нравится, долго
+        // сделать соовевтие строк и адресов - и передавать как элемент ассемблера
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
             assembl->ptr_array[idx] += strspn(assembl->ptr_array[idx], " \t\n\r\f\v");
+            // В отдельную функцию, она будет простой 
             if((cmd == 21 || cmd == 22 || cmd == JBE 
             || cmd == JAE || cmd == JE || cmd == JNE 
             || cmd == JA  || cmd == JB || cmd == PUSH 
@@ -50,6 +52,7 @@ static int* metki(assembler* assembl){
         if(current_str && (current_str == assembl->ptr_array[idx] + strspn(assembl->ptr_array[idx], " \t\n\r\f\v"))){
             current_str++;
             metka = atoi(current_str);
+            // проверить границы массива
             metki_arr[metka] = count;   //- 1;
             continue;
         }
@@ -65,15 +68,18 @@ static int* metki(assembler* assembl){
     return metki_arr;
 }
 
+//  Зачем возвращать указатель на структуру, ты её и так меняешь по указателю
+// Лучше возвращать ошибку!
 assembler* parser(assembler* assembl){
-    bytecode code = {};
+    bytecode code = {}; // Лучше сразу структуру использовать
 
+    // metki_arr -> structuru, init + destroy
     int* metki_arr = metki(assembl);
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
         return assembl;
     }
-
+    // После рефакторинга metki уже будешь знать кол-во команд
     int* arr_with_code = (int*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(int));
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for bytecode array");
@@ -90,7 +96,8 @@ assembler* parser(assembler* assembl){
             fprintf(stderr, "current ptr is null, parsing stopped");
             break;
         }
-
+        // пропуск пробелов в отдельнкю функцию
+        //  можно сделать в стиле strchr
         current_str += strspn(current_str, " \t\n\r\f\v");
 
         if(!parse_cmnds(&count, arr_with_code, current_str, metki_arr)){
@@ -102,10 +109,11 @@ assembler* parser(assembler* assembl){
     code.array = arr_with_code;
     code.size = count;
     fprintf(stderr, "%d\n", count);
+
     memset(metki_arr, 0, MAX_NUMBER_OF_METKI * sizeof(int));
     free(metki_arr);
 
-    // DEBUG_FOR
+    // DEBUG_FOR (можно asm_dump())
     for(int i = 0; i < code.size; i++){
         fprintf(stderr, "[%d]: %d\n", i, arr_with_code[i]);
     }
@@ -120,8 +128,9 @@ static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, in
     bool command_found = false;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
         length = strcspn(current_str, " \t\n\r\f\v");
-
+        // интвертировать иф
         if(length == COMANDS[cmd].size && !strncmp(current_str, COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+            // добавитиь в струткру тип команды
             if(cmd == 21 || cmd == 22){
                 if(!pushr_popr(cmd, count, arr_with_code, current_str)){
                     return false;

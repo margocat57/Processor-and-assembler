@@ -42,8 +42,10 @@ struct comands_and_size{
     const char* name_of_comand;
     size_t size;
     CODE_CMD bytecode;
+    // количество элементов
 };
 
+// либо 20 строк кода с пустыми структурами
 const comands_and_size COMANDS[]={
     {},                 //0
     {"PUSH", 4, PUSH},  //1

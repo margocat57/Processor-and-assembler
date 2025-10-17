@@ -3,6 +3,8 @@
 #include "stack_for_calcul/stack.h"
 #include "stack_for_calcul/mistakes_code.h"
 
+// FIXME Процессор в отдельную папку
+
 const int REGISTR_MAX_SIZE = 16;
 const int RAM_MAX_SIZE = 100;
 

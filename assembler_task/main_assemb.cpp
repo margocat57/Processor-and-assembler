@@ -5,7 +5,8 @@
 int main(){
     
     assembler asssembl = read_file_to_string_array("assembler_task/calc_fact.txt");
-    create_ptr_array(&asssembl);
+    create_ptr_array(&asssembl); // TODO: asm_init 
+
     parser(&asssembl);
     put_buffer_to_file("assembler_task/ass.bin", &asssembl);
 

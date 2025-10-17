@@ -18,6 +18,18 @@
         jump_if_condition_sw(intel, t1 comp t2); \
     } while(0);
 
+#define DO_OPERATION(intel, OP) \
+    do{ \
+        int a = 0; \
+        CHECK_STACK_ERR(stack_pop((intel)->stack, &a)); \
+        \
+        int b = 0; \
+        CHECK_STACK_ERR(stack_pop((intel)->stack, &b)); \
+        \
+        int c = a OP b; \
+        put_res_to_stack(intel, c); \
+    } while(0);
+
 #define LESS    <
 #define LESS_EQ <=
 #define MORE    >
@@ -25,19 +37,18 @@
 #define EQ      ==
 #define NOT_EQ  !=
 
+#define ADD_OP  +
+#define SUB_OP  -
+#define MUL_OP  *
+#define DIV_OP  /
+
 #define DO_CASE(function) \
     function; \
     break; \
 
 static stack_err_bytes proc_push(processor* intel);
 
-static stack_err_bytes add(processor* intel);
-
-static stack_err_bytes mul(processor* intel);
-
-static stack_err_bytes div(processor* intel);
-
-static stack_err_bytes sub(processor* intel);
+static stack_err_bytes put_res_to_stack(processor* intel, int res);
 
 static stack_err_bytes sqrt(processor* intel);
 
@@ -74,10 +85,10 @@ stack_err_bytes do_processor_comands(processor* intel){
         switch (intel->code.comands[intel->ic])
         {
         case PUSH:  DO_CASE(proc_push(intel))
-        case ADD:   DO_CASE(add(intel))
-        case SUB:   DO_CASE(sub(intel)) 
-        case DIV:   DO_CASE(div(intel))
-        case MUL:   DO_CASE(mul(intel))
+        case ADD:   DO_CASE(DO_OPERATION(intel, ADD_OP))
+        case SUB:   DO_CASE(DO_OPERATION(intel, SUB_OP)) 
+        case DIV:   DO_CASE(DO_OPERATION(intel, DIV_OP))
+        case MUL:   DO_CASE(DO_OPERATION(intel, MUL_OP))
         case SQRT:  DO_CASE(sqrt(intel))
         case OUT:   DO_CASE(out(intel, &result))
         case IN:    DO_CASE(in(intel)) 
@@ -138,32 +149,33 @@ static stack_err_bytes pushr(processor* intel){
 }
 
 static stack_err_bytes popm(processor* intel){
+    int temp = 0;
+    intel->ic++;
+
+    intel->ram_counter = intel->registr[(intel->code.comands)[intel->ic]];
     if(intel->ram_counter >= RAM_MAX_SIZE){
         fprintf(stderr, "RAM is full - can't add elem to ram");
         intel->ic += 2;
         return RAM_OVERFLOW;
     }
-    int temp = 0;
-    intel->ic++;
 
-    intel->RAM[intel->ram_counter] = intel->registr[(intel->code.comands)[intel->ic]];
-    intel->ic++;
-    intel->ram_counter++;
+    CHECK_STACK_ERR(stack_pop(intel->stack, &temp));
+    intel->RAM[intel->ram_counter] = temp;
 
+    intel->ic++;
     return NO_MISTAKE;
 }
 
 static stack_err_bytes pushm(processor* intel){
     int temp = 0;
-    intel->ram_counter--;
 
     intel->ic++;
+    // исправить
     temp = intel->RAM[intel->ram_counter];
 
     CHECK_STACK_ERR(stack_push(intel->stack, &temp));
     intel->ic++;
 
-    intel->ram_counter++;
     return NO_MISTAKE;
 }
 
@@ -183,59 +195,9 @@ static stack_err_bytes out(processor* intel, int* result){
     return NO_MISTAKE;
 }
 
-static stack_err_bytes add(processor* intel){
-    int pop = 0;
-    int temp = 0;
-    for(int idx = 0; idx < 2; idx ++){
-        CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-        temp += pop;
-    }
-    CHECK_STACK_ERR(stack_push(intel->stack, &temp));
-    intel->ic++;
-    return NO_MISTAKE;
-}
-
-static stack_err_bytes mul(processor* intel){
-    int pop = 0;
-    int temp = 1;
-    for(int idx = 0; idx < 2; idx ++){
-        CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-        temp *= pop;
-    }
-    CHECK_STACK_ERR(stack_push(intel->stack, &temp));
-    intel->ic++;
-    return NO_MISTAKE;
-}
-
-static stack_err_bytes sub(processor* intel){
-    int pop = 0;
-    int temp = 0;
-
-    CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-    temp -= pop;
-
-    CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-    temp += pop;
-
-    CHECK_STACK_ERR(stack_push(intel->stack, &temp));
-    intel->ic++;
-    return NO_MISTAKE;
-}
-
-static stack_err_bytes div(processor* intel){
-    int pop = 0;
-    double temp = 1;
-
-    CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-    temp /= (double)pop;
-
-    CHECK_STACK_ERR(stack_pop(intel->stack, &pop));
-    temp *= pop;
-
-    pop = temp;
-    CHECK_STACK_ERR(stack_push(intel->stack, &pop));
-
-    intel->ic++;
+static stack_err_bytes put_res_to_stack(processor* intel, int res){
+    CHECK_STACK_ERR(stack_push((intel)->stack, &res));
+    intel->ic++; 
     return NO_MISTAKE;
 }
 

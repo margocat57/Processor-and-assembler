@@ -7,35 +7,37 @@
 #include <string.h>
 
 processor init(const char* name_of_file){
-    processor intel = {};
+    processor baikal = {};
 
     if(!name_of_file){
         fprintf(stderr, "NULL pointer to string with file name");
-        return intel;
+        return baikal;
     }
 
-    intel.code = load_code(name_of_file);
-    if(!intel.code.comands){
+    baikal.code = load_code(name_of_file);
+    if(!baikal.code.comands){
         fprintf(stderr, "NULL pointer to bytecode array");
-        return intel;
+        return baikal;
     }
 
-    intel.stack = stack_ctor(intel.code.size, __FILE__, __func__, __LINE__);
-    if(!intel.code.comands){
+    baikal.stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
+    if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stackfor bytecode");
-        return intel;
+        // free
+        return baikal;
     }
 
     // пока создаем размером в код так как память дешевая, вопрос как лучше открытый
-    intel.call_stack = stack_ctor(intel.code.size, __FILE__, __func__, __LINE__);
-    if(!intel.code.comands){
+    baikal.call_stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
+    if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stack");
-        return intel;
+        // 2 free
+        return baikal;
     }
 
-    intel.ram_counter = 0;
-    intel.ic = 0;
-    return intel;
+    baikal.ram_counter = 0;
+    baikal.ic = 0;
+    return baikal;
 }
 
 void processor_dump(processor* intel){

@@ -2,8 +2,7 @@
 #define ASSEMBLER_STRUCT
 #include <string.h>
 
-struct file_in_array
-{
+struct file_in_array{
     size_t amount_str;         
     char *all_strings_in_file; 
     bool is_stat_err;          

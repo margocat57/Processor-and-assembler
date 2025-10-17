@@ -23,7 +23,7 @@ code_and_size load_code(const char* name_of_file){
     printf("%s\n", author_buffer);
     printf("%s\n", BYTECODE_AUTOR_STR);
     
-    if (memcmp(BYTECODE_AUTOR_STR, author_buffer, 15)){
+    if (memcmp(BYTECODE_AUTOR_STR, author_buffer, ELEM_IN_STR)){
         fprintf(stderr, "NOT CORRECT BYTECODE'S AUTHOR OR VERSION");
         return code;
     }

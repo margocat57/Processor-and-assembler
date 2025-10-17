@@ -115,9 +115,15 @@ void put_buffer_to_file(const char *name_of_file, assembler* assembl)
 }
 
 void free_all(assembler* assembl){
+    memset(assembl->file_in_arr.all_strings_in_file, 0, assembl->file_in_arr.amount_str * sizeof(char));
     free(assembl->file_in_arr.all_strings_in_file);
-    // arr->all_strings_in_file = NULL;
+    assembl->file_in_arr.all_strings_in_file = NULL;
+
+    memset(assembl->bytecode_struct.array, 0, assembl->file_in_arr.amount_str * 2 * sizeof(char));
     free(assembl->bytecode_struct.array);
-    // cmnds->array = NULL;
+    assembl->bytecode_struct.array = NULL;
+
+    memset(assembl->ptr_array, 0, assembl->file_in_arr.amount_str * sizeof(char*));
     free(assembl->ptr_array);
+    assembl->ptr_array = NULL;
 }
