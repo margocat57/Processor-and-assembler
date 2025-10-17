@@ -23,7 +23,8 @@ processor init(const char* name_of_file){
     baikal.stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
     if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stackfor bytecode");
-        // free
+        memset(baikal.code.comands, 0, baikal.code.size * sizeof(int));
+        free(baikal.code.comands);
         return baikal;
     }
 
@@ -31,7 +32,9 @@ processor init(const char* name_of_file){
     baikal.call_stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
     if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stack");
-        // 2 free
+        memset(baikal.code.comands, 0, baikal.code.size * sizeof(int));
+        free(baikal.code.comands);
+        stack_free(baikal.stack);
         return baikal;
     }
 
