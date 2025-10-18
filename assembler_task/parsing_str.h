@@ -81,5 +81,6 @@ const comands_and_size COMANDS[]={
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);
 uint64_t parser(assembler* assembl);
 
+listing* fill_listing_struct(assembler* assembl);
 
 #endif //PARSING_STR_H

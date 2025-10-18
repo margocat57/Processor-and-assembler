@@ -100,12 +100,12 @@ void put_buffer_to_file(const char *name_of_file, assembler* assembl)
 
     const char *null_term = NULL;
 
-    // прочекать что функции безопасные
+    // TODO прочекать что функции безопасные
     fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
 
-    fwrite(&assembl->bytecode_struct.size, sizeof(size_t), 1, fptr);
+    fwrite(&assembl->asm_bytecode_size, sizeof(size_t), 1, fptr);
 
-    fwrite(assembl->bytecode_struct.array, sizeof(int), assembl->bytecode_struct.size, fptr);
+    fwrite(assembl->bytecode, sizeof(int), assembl->asm_bytecode_size, fptr);
 
     fclose(fptr);
 }
