@@ -4,11 +4,11 @@
 #include <stdio.h>
 
 int main(){
-    processor intel = {};
-    intel = init("assembler_task/ass.bin");
-    stack_err_bytes a = do_processor_comands(&intel);
+    processor baikal = {};
+    baikal = init("assembler_task/ass.bin");
+    stack_err_bytes a = do_processor_comands(&baikal);
     // printf("res = %d", a.res);
 
-    processor_free(&intel);
+    processor_free(&baikal);
     return 0;
 }

@@ -3,218 +3,158 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
-// стоит добавить листинг как в ассемблере
-// также посмотреть логику функций - имхо она корявая
-// проблема - в одном случае возвращает пустую структуру а в других ничего не возвращает
-static bool parse_cmnds(size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
+static assembler_err_t parse_cmnds(assembler* assembl);
 
-static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str);
+static assembler_err_t pushrm_poprm(int cmd, assembler* assembl);
 
-static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str);
+static void func_with_metka(int cmd, assembler* assembl);
 
-static void func_with_metka(int cmd, size_t* count, int* arr_with_code, char* current_str, int* metki_arr);
+static void push(int cmd, assembler* assembl);
 
-static void push(int cmd, size_t* count, int* arr_with_code, char* current_str);
+static char* skip_space(char* current_str){
+    char* str_without_space = current_str;
+    str_without_space = str_without_space + strspn(current_str, " \t\n\r\f\v");
+    return str_without_space;
+}
 
-static int* metki(assembler* assembl);
-
-static int* metki(assembler* assembl){
-    int* metki_arr = (int*)calloc(sizeof(int), MAX_NUMBER_OF_METKI); 
-    if(!metki_arr){
-        fprintf(stderr, "Can't allocate memory for metki array");
+listing* fill_listing_struct(assembler* assembl){
+    listing* info = (listing*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(listing));
+    if(!info){
         return NULL;
     }
 
-    char* current_str = NULL;
-    int count = 0;
-    int metka = 0;
-
-    for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
-        printf("%d\n", count);
-        //FIXME не нравится, долго
-        // сделать соовевтие строк и адресов - и передавать как элемент ассемблера
+    // сделать соовевтие строк и адресов - и передавать как элемент ассемблера
+    for (size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
-            assembl->ptr_array[idx] += strspn(assembl->ptr_array[idx], " \t\n\r\f\v");
-            // В отдельную функцию, она будет простой 
-            if((cmd == 21 || cmd == 22 || cmd == JBE 
-            || cmd == JAE || cmd == JE || cmd == JNE 
-            || cmd == JA  || cmd == JB || cmd == PUSH 
-            || cmd == CALL || cmd == PUSHM || cmd == POPM) &&
-            !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                count++;
+            assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
+            // В отдельную функцию, она будет простой
+            if(!COMANDS[cmd].name_of_comand){
+                continue;
+            }
+            if(COMANDS[cmd].num_of_params >= 1 &&
+                !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+                (info + idx)->instruction = assembl->ptr_array[idx];
+                (info + idx)->pc = assembl->asm_bytecode_size;
+                (assembl->asm_bytecode_size)+=2;
+                break;
+            }
+            else if(!strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
+                (info + idx)->instruction = assembl->ptr_array[idx];
+                (info + idx)->pc = assembl->asm_bytecode_size;
+                (assembl->asm_bytecode_size)++;
+                break;
+            }
+            else if(strchr(assembl->ptr_array[idx], ':')){
+                (info + idx)->instruction = assembl->ptr_array[idx];
+                (info + idx)->pc = -1;
                 break;
             }
         }
-        // можно сделать так что если типо команды перед меткой нет только тогда мы изменяем значения массива меток
-
-        current_str = strchr(assembl->ptr_array[idx], ':');
-        // зачем такое условное условие затем чтобы если метка была до команды JUMP :метка мы тоже прыгали по метке
-        if(current_str && (current_str == assembl->ptr_array[idx] + strspn(assembl->ptr_array[idx], " \t\n\r\f\v"))){
-            current_str++;
-            metka = atoi(current_str);
-            // проверить границы массива
-            metki_arr[metka] = count;   //- 1;
-            continue;
-        }
-        count++;
     }
-
-    // DEBUG
-    for(int i = 0; i < 10; i++){
-        printf("[%d]: %d\n", i, metki_arr[i]);
-    }
-    printf("---------\n");
-
-    return metki_arr;
+    return info;
 }
 
 //  Зачем возвращать указатель на структуру, ты её и так меняешь по указателю
 // Лучше возвращать ошибку!
-assembler* parser(assembler* assembl){
-    bytecode code = {}; // Лучше сразу структуру использовать
-
-    // metki_arr -> structuru, init + destroy
-    int* metki_arr = metki(assembl);
-    if(!metki_arr){
-        fprintf(stderr, "Can't allocate memory for metki array");
-        return assembl;
+assembler_err_t parser(assembler* assembl){
+    assembler_err_t err = NO_MISTAKE;
+    if(!assembl->metki_asm.metki_arr){
+        fprintf(stderr, "Can't use metki ");
+        return ALLOC_ERROR;
     }
     // После рефакторинга metki уже будешь знать кол-во команд
     int* arr_with_code = (int*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(int));
-    if(!metki_arr){
+    if(!arr_with_code){
         fprintf(stderr, "Can't allocate memory for bytecode array");
-        return assembl;
+        return ALLOC_ERROR;
     }
-
-    size_t count = 0;
-    char* current_str = NULL;
+    assembl->bytecode = arr_with_code;
     fprintf(stderr, "%d\n", assembl->file_in_arr.amount_str);
 
-    for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
-        current_str = assembl->ptr_array[idx];
-        if(!current_str){
+    for( ; assembl->asm_pc < assembl->file_in_arr.amount_str; assembl->asm_pc++){
+        if(!assembl->info[assembl->asm_pc].instruction){
             fprintf(stderr, "current ptr is null, parsing stopped");
             break;
         }
-        // пропуск пробелов в отдельнкю функцию
-        //  можно сделать в стиле strchr
-        current_str += strspn(current_str, " \t\n\r\f\v");
 
-        if(!parse_cmnds(&count, arr_with_code, current_str, metki_arr)){
-            return assembl;
+        err = parse_cmnds(assembl);
+        if(err){
+            return err;
         }
-        fprintf(stderr, "%s\n", current_str);
-        fprintf(stderr, "%d\n", count);
     }
-    code.array = arr_with_code;
-    code.size = count;
-    fprintf(stderr, "%d\n", count);
 
-    memset(metki_arr, 0, MAX_NUMBER_OF_METKI * sizeof(int));
-    free(metki_arr);
-
-    // DEBUG_FOR (можно asm_dump())
-    for(int i = 0; i < code.size; i++){
+    // TODO DEBUG_FOR (можно asm_dump())
+    for(int i = 0; i < assembl->asm_bytecode_size; i++){
         fprintf(stderr, "[%d]: %d\n", i, arr_with_code[i]);
     }
 
-    assembl->bytecode_struct = code;
-
-    return assembl;
+    return NO_MISTAKE;
 }
 
-static bool parse_cmnds(size_t *count, int* arr_with_code, char* current_str, int* metki_arr){
+static assembler_err_t parse_cmnds(assembler* assembl){
     size_t length = 0;
-    bool command_found = false;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
-        length = strcspn(current_str, " \t\n\r\f\v");
-        // интвертировать иф
-        if(length == COMANDS[cmd].size && !strncmp(current_str, COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-            // добавитиь в струткру тип команды
-            if(cmd == 21 || cmd == 22){
-                if(!pushr_popr(cmd, count, arr_with_code, current_str)){
-                    return false;
-                }
-                command_found = true;
-                break;
-            }
+        length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
+        // вот здесь свич
+        if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) 
+        || assembl->info[assembl->asm_pc].pc != -1 ){
+            continue;
+        }
 
-            if(cmd == PUSHM || cmd == POPM){
-                if(!pushm_popm(cmd, count, arr_with_code, current_str)){
-                    return false;
-                }
-                command_found = true;
-                break;
-            }
+        switch(COMANDS[cmd].elem_type){
+            case PUSHRM_POPRM:
+                return pushrm_poprm(cmd, assembl);
 
-            if(cmd == JBE || cmd == JAE || cmd == JE || cmd == JNE || cmd == JA || cmd == JB || cmd == CALL || cmd == JMP){
-                func_with_metka(cmd, count, arr_with_code, current_str, metki_arr);
-                command_found = true;
+            case JUMP_WITH_COND:
+                func_with_metka(cmd, assembl);
                 break;
-            }
 
-            if(cmd == PUSH){
-                push(cmd, count, arr_with_code, current_str);
-                command_found = true;
+            case PUSH_TYPE:
+                push(cmd, assembl);
                 break;
-            }
 
-            arr_with_code[*count] = COMANDS[cmd].bytecode;
-            command_found = true;
-            break;
+            case OTHER:
+                assembl->bytecode[assembl->info[assembl->asm_pc].pc] = COMANDS[cmd].bytecode;
+                break;
+
+            default:
+                return INCORRECT_CMD;
         }
     }
-    fprintf(stderr, "command_found = %d\n", command_found);
-    if(command_found) (*count)++;
-    return true;
+
+    return NO_MISTAKE;
 }
 
-static void push(int cmd, size_t* count, int* arr_with_code, char* current_str){
-    arr_with_code[*count] = cmd;
-    current_str = current_str + COMANDS[cmd].size + 1;
-    arr_with_code[*count + 1] = atoi(current_str);
-    (*count)++;
+static void push(int cmd, assembler* assembl){
+    //TODO адекватная адресация
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
+    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
+
+    assembl->asm_pc++;
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = atoi(current_str);
 }
 
-static void func_with_metka(int cmd, size_t* count, int* arr_with_code, char* current_str, int* metki_arr){
-    arr_with_code[*count] = cmd;
-    (*count)++;
+static void func_with_metka(int cmd, assembler* assembl){
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
 
+    char* current_str = assembl->info[assembl->asm_pc].instruction;
     current_str = strchr(current_str, ':'); // доходим до метки
     current_str++; // доходим до числа
 
-    arr_with_code[*count] = metki_arr[atoi(current_str)];
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = assembl->metki_asm.metki_arr[atoi(current_str)];
 }
 
-static bool pushr_popr(int cmd, size_t* count, int* arr_with_code, char* current_str){
-    int cmd_index = cmd == 22 ? PUSHR : POPR;
-    arr_with_code[*count] = cmd_index;
+static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
 
-    (*count)++;
-    current_str = current_str + COMANDS[cmd].size + 1;
+    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
 
     current_str = strchr(current_str, 'X') - 1;
     if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cXin parsing pushr/popr cmd", current_str[0]);
-        return false;
+        fprintf(stderr, "Incorrect registr R%cXin", current_str[0]);
+        return INCORRECT_REGISTR;
     }
 
-    arr_with_code[*count] = current_str[0] - 'A';
-    return true;
-}
-
-static bool pushm_popm(int cmd, size_t* count, int* arr_with_code, char* current_str){
-    arr_with_code[*count] = cmd;
-
-    (*count)++;
-    current_str = current_str + COMANDS[cmd].size + 1;
-
-    current_str = strchr(current_str, 'X') - 1;
-    if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cX in parsing pushm/popm cmd", current_str[0]);
-        return false;
-    }
-
-    arr_with_code[*count] = current_str[0] - 'A';
-    return true;
+    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = current_str[0] - 'A';
+    return NO_MISTAKE;
 }

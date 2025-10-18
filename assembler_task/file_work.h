@@ -8,11 +8,10 @@ bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about
 
 int count_strings_by_symbols(char *array_to_search, char ch);
 
-assembler read_file_to_string_array(const char *name_of_file);
+file_in_array read_file_to_string_array(const char *name_of_file);
 
-assembler* create_ptr_array(assembler* assembl);
+char** create_ptr_array(file_in_array* file_in_arr);
 
 void put_buffer_to_file(const char *name_of_file, assembler* assembl);
 
-void free_all(assembler* assembl);
 #endif //FILE_WORK_H

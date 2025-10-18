@@ -29,11 +29,17 @@ assembler_task/file_work.o: assembler_task/file_work.cpp
 assembler_task/parsing_str.o: assembler_task/parsing_str.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
+assembler_task/assembler_str_init.o: assembler_task/assembler_str_init.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
+assembler_task/metki.o: assembler_task/metki.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
 # Правило для файлов в корневой папке
 %.o: %.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
-assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o
+assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_str_init.o assembler_task/metki.o
 	$(COMP) -o $@ $^
 
 processor: main_proc.o parse_asm_from_file.o assembler_task/file_work.o calcul.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor.o
