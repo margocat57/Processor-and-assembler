@@ -1,14 +1,26 @@
 #include "metki.h"
 #include "assembler_struct.h"
+#include "asm_color_lib.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+static void metki_dump(metki metki){
+    const char* index = "METKA";
+    const char* pointer = "Pointer";
+    fprintf(stderr, GOLDEN_YELLOW("[%5s] "), index);
+    fprintf(stderr, LIGHT_YELLOW("%s\n"), pointer);
+    for(int idx = 0; idx < MAX_NUMBER_OF_METKI; idx++){
+        fprintf(stderr, GOLDEN_YELLOW("[%5d] "), idx);
+        fprintf(stderr, LIGHT_YELLOW("%d\n"), metki.metki_arr[idx]);
+    }
+}
+
 metki metki_init(assembler* assembl){
-    metki m = {};
+    metki mtk = {};
     int* metki_arr = (int*)calloc(sizeof(int), MAX_NUMBER_OF_METKI); 
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
-        return m;
+        return mtk;
     }
 
     char* current_str = NULL;
@@ -29,15 +41,11 @@ metki metki_init(assembler* assembl){
             }
         }
     }
-    m.metki_arr = metki_arr;
+    mtk.metki_arr = metki_arr;
 
-    // DEBUG
-    for(int i = 0; i < 10; i++){
-        printf("[%d]: %d\n", i, m.metki_arr[i]);
-    }
-    printf("---------\n");
+    metki_dump(mtk);
 
-    return m;
+    return mtk;
 }
 
 void metki_destroy(assembler* assembl){

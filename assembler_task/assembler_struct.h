@@ -15,6 +15,8 @@ struct listing{
     long long int pc;
     char* instruction;
     int bytecode;
+    int num_of_args;
+    int args;
 };
 
 struct assembler{
@@ -37,6 +39,8 @@ enum assembler_err{
 };
 
 assembler asm_init(const char* instructions_file);
+
+void asm_dump(assembler* assembl);
 
 void free_asm(assembler* assembl);
 

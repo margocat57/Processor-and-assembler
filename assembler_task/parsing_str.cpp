@@ -11,6 +11,8 @@ static void func_with_metka(int cmd, assembler* assembl);
 
 static void push(int cmd, assembler* assembl);
 
+static void other(int cmd, assembler* assembl);
+
 static char* skip_space(char* current_str){
     char* str_without_space = current_str;
     str_without_space = str_without_space + strspn(current_str, " \t\n\r\f\v");
@@ -23,7 +25,6 @@ listing* fill_listing_struct(assembler* assembl){
         return NULL;
     }
 
-    // сделать соовевтие строк и адресов - и передавать как элемент ассемблера
     for (size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
             if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
@@ -50,12 +51,6 @@ listing* fill_listing_struct(assembler* assembl){
                 break;
             }
         }
-        // DEBUG - потом будет нормальный ассемблерный дамп и уберу это
-        // fprintf(stderr, "assembl->ptr_array[idx] = %s\n", assembl->ptr_array[idx]);
-        // fprintf(stderr, "instruct = %s\n", (info + idx)->instruction = assembl->ptr_array[idx]);
-        // fprintf(stderr, "(info + idx)->pc = %d\n", (info + idx)->pc);
-        // fprintf(stderr, "idx = %d\n", idx);
-        // fprintf(stderr, "size = %d\n", assembl->asm_bytecode_size);
     }
     return info;
 }
@@ -77,8 +72,6 @@ assembler_err_t parser(assembler* assembl){
     assembl->bytecode = arr_with_code;
 
     for( ; assembl->asm_pc < assembl->file_in_arr.amount_str; assembl->asm_pc++){
-        // fprintf(stderr, "%d\n", assembl->asm_pc);
-        // fprintf(stderr, "instruct = %s\n", assembl->info[assembl->asm_pc].instruction);
         if(!assembl->info[assembl->asm_pc].instruction){
             continue;
         }
@@ -89,15 +82,9 @@ assembler_err_t parser(assembler* assembl){
         }
     }
 
-    // TODO DEBUG_FOR (можно asm_dump())
-    for(int i = 0; i < assembl->asm_bytecode_size; i++){
-        fprintf(stderr, "[%d]: %d\n", i, arr_with_code[i]);
-    }
-
     return NO_MISTAKE;
 }
 
-// FIXME переделать call пока нарушена логика
 static assembler_err_t parse_cmnds(assembler* assembl){
     size_t length = 0;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
@@ -109,27 +96,25 @@ static assembler_err_t parse_cmnds(assembler* assembl){
         }
 
         switch(COMANDS[cmd].elem_type){
-            case PUSHRM_POPRM:
-                return pushrm_poprm(cmd, assembl);
-
-            case JUMP_WITH_COND:
-                func_with_metka(cmd, assembl);
-                break;
-
-            case PUSH_TYPE:
-                push(cmd, assembl);
-                break;
-
-            case OTHER: // TODO to func
-                assembl->bytecode[assembl->info[assembl->asm_pc].pc] = COMANDS[cmd].bytecode;
-                break;
-
-            default:
-                return INCORRECT_CMD;
+            case PUSHRM_POPRM:   return pushrm_poprm(cmd, assembl);
+            case JUMP_WITH_COND: func_with_metka(cmd, assembl); break;
+            case PUSH_TYPE:      push(cmd, assembl);            break;
+            case OTHER:          other(cmd, assembl);           break;
+            default:             return INCORRECT_CMD;
         }
     }
 
     return NO_MISTAKE;
+}
+
+static void other(int cmd, assembler* assembl){
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
+    assembl->bytecode[index_of_bytecode_array] = cmd;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
+
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
 }
 
 static void push(int cmd, assembler* assembl){
@@ -137,16 +122,25 @@ static void push(int cmd, assembler* assembl){
     size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
     assembl->bytecode[index_of_bytecode_array] = cmd;
-    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
 
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
+
+    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
     index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+
     assembl->bytecode[index_of_bytecode_array] = atoi(current_str);
+    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
 }
 
 static void func_with_metka(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
     assembl->bytecode[index_of_bytecode_array] = cmd;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
+
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
 
     char* current_str = assembl->info[assembl->asm_pc].instruction;
     current_str = strchr(current_str, ':'); // доходим до метки
@@ -154,12 +148,17 @@ static void func_with_metka(int cmd, assembler* assembl){
 
     index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
     assembl->bytecode[index_of_bytecode_array] = assembl->metki_asm.metki_arr[atoi(current_str)];
+    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
 }
 
 static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
     assembl->bytecode[index_of_bytecode_array] = cmd;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
+
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
 
     char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
 
@@ -172,5 +171,6 @@ static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
     assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
 
+    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
     return NO_MISTAKE;
 }
