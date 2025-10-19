@@ -20,13 +20,13 @@
 
 #define DO_OPERATION(intel, OP) \
     do{ \
-        int a = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &a)); \
+        int stack_top_el = 0; \
+        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_top_el)); \
         \
-        int b = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &b)); \
+        int stack_el = 0; \
+        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_el)); \
         \
-        int c = a OP b; \
+        int c = stack_el OP stack_top_el; \
         put_res_to_stack(intel, c); \
     } while(0);
 
@@ -44,6 +44,11 @@
 
 #define DO_CASE(function) \
     function; \
+    break; \
+
+#define DO_DRAW_CASE(function) \
+    function; \
+    intel->ic++; \ 
     break; \
 
 static stack_err_bytes proc_push(processor* intel);
@@ -105,6 +110,7 @@ stack_err_bytes do_processor_comands(processor* intel){
         case RET:   DO_CASE(ret(intel))
         case PUSHM: DO_CASE(pushm(intel))
         case POPM:  DO_CASE(popm(intel))
+        case DRAW:  DO_DRAW_CASE(ram_dump(intel))
         case VLT:   return processor_verify(intel);
         default:
             fprintf(stderr, "INCORRECT CMD CODE");

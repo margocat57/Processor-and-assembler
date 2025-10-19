@@ -36,11 +36,9 @@ void ram_dump(processor* intel);
 
 void reg_dump(processor* intel);
 
-void stack_dump_light(processor* intel);
-
 stack_err_bytes processor_verify(processor* intel);
 
-stack_err_bytes processor_free(processor* intel);
+void processor_free(processor* intel);
 
 enum registr{
     RAX = 0,

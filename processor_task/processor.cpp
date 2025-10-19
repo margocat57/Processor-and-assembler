@@ -24,8 +24,7 @@ processor init(const char* name_of_file){
     baikal.stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
     if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stackfor bytecode");
-        memset(baikal.code.comands, 0, baikal.code.size * sizeof(int));
-        free(baikal.code.comands);
+        processor_free(&baikal);
         return baikal;
     }
 
@@ -33,9 +32,7 @@ processor init(const char* name_of_file){
     baikal.call_stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
     if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stack");
-        memset(baikal.code.comands, 0, baikal.code.size * sizeof(int));
-        free(baikal.code.comands);
-        stack_free(baikal.stack);
+        processor_free(&baikal);
         return baikal;
     }
 
@@ -80,7 +77,7 @@ void ram_dump(processor* intel){
         printf_to_log_file(BLUE_DARK "%d\t" COLOR_RESET, intel->RAM[idx_ram]);
         }
 
-        if((idx_ram + 1) % 5 == 0){
+        if((idx_ram + 1) % 10 == 0){
             printf_to_log_file("\n");
         }
     }
@@ -93,7 +90,10 @@ void processor_dump(processor* intel){
 
     ram_dump(intel);
 
+    printf_to_log_file(GREEN_ELECTRIC "Calcul stack:\n" COLOR_RESET);
     stack_dump(intel->stack);
+
+    printf_to_log_file(GREEN_ELECTRIC "Call stack:\n" COLOR_RESET);
     stack_dump(intel->call_stack);
 }
 
@@ -117,22 +117,25 @@ stack_err_bytes processor_verify(processor* intel){
     return error;
 }
 
-stack_err_bytes processor_free(processor* intel){
-    stack_err_bytes err = processor_verify(intel);
-    if(err){
-        return err;
+void processor_free(processor* intel){
+    if(!intel){
+        fprintf(stderr, "Can't free data pointer to processor is NULL");
+        return;
     }
 
-    // вообще хороший вопрос что лучше занулять указатель(как будто это как раз и делает free)
-    stack_free(intel->stack);
-    intel->stack = NULL;
+    if(intel->stack){
+        stack_free(intel->stack);
+        intel->stack = NULL;
+    }
 
-    memset(intel->code.comands, 0, intel->code.size * sizeof(int));
-    free(intel->code.comands);
-    intel->code.comands = NULL;
+    if(intel->code.comands){
+        memset(intel->code.comands, 0, intel->code.size * sizeof(int));
+        free(intel->code.comands);
+        intel->code.comands = NULL;
+    }
 
-    stack_free(intel->call_stack);
-    intel->call_stack = NULL;
-
-    return NO_MISTAKE;
+    if(intel->call_stack){
+        stack_free(intel->call_stack);
+        intel->call_stack = NULL;
+    }
 }

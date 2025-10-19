@@ -18,32 +18,30 @@ code_and_size load_code(const char* name_of_file){
         return code;
     }
 
-    fread(&author_buffer, sizeof(char), ELEM_IN_STR, fp);
-
-    printf("%s\n", author_buffer);
-    printf("%s\n", BYTECODE_AUTOR_STR);
+    if(fread(&author_buffer, sizeof(char), ELEM_IN_STR, fp) != ELEM_IN_STR){
+        fprintf(stderr, "Can't read bytecode's sign");
+        return code;
+    }
     
     if (memcmp(BYTECODE_AUTOR_STR, author_buffer, ELEM_IN_STR)){
-        fprintf(stderr, "NOT CORRECT BYTECODE'S AUTHOR OR VERSION");
+        fprintf(stderr, "NOT CORRECT BYTECODE'S AUTHOR OR VERSION\n");
         return code;
     }
 
-    fread(&code.size, sizeof(size_t), 1, fp);
+    if(fread(&code.size, sizeof(size_t), 1, fp) != 1){
+        fprintf(stderr, "Can't read number of symbols in bytecode\n");
+        return code;
+    }
 
     int* arr = (int*)calloc((code.size + 1), sizeof(int));
     if(!arr){
-        fprintf(stderr, "Can't allocate memory for bytecode array");
+        fprintf(stderr, "Can't allocate memory for bytecode array\n");
         return code;
     }
-    int idx = 0;
 
-    fread(arr, sizeof(int), code.size, fp);
-
-    int elem = 0;
-    // DEBUG
-    for(; elem < code.size; elem++){
-        // fscanf(fp, " %d", &arr[elem]);
-        fprintf(stderr, "[%d] %d\n", elem, arr[elem]);
+    if(fread(arr, sizeof(int), code.size, fp) != code.size){
+        fprintf(stderr, "Can't read bytecode from file\n");
+        return code;
     }
 
     fclose(fp);

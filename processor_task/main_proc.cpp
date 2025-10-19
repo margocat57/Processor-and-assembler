@@ -8,7 +8,6 @@ int main(){
     baikal = init("assembler_task/ass.bin");
     stack_err_bytes a = do_processor_comands(&baikal);
     processor_dump(&baikal);
-    // printf("res = %d", a.res);
 
     processor_free(&baikal);
     return 0;
