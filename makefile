@@ -61,5 +61,5 @@ processor: processor_task/main_proc.o processor_task/parse_asm_from_file.o assem
 #	$(COMP) -o $@ $^
 
 clean:
-	rm -f assembler_task/*.o stack_for_calcul/*.o *.o assembler processor
+	rm -f assembler_task/*.o processor_task/*.o stack_for_calcul/*.o *.o assembler processor
 # *.p
