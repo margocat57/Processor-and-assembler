@@ -3,7 +3,7 @@
 #include <string.h>
 #include "metki.h"
 
-typedef uint64_t assembler_err_t;
+typedef int64_t assembler_err_t;
 struct file_in_array{
     size_t amount_str;         
     char *all_strings_in_file; 
@@ -12,7 +12,7 @@ struct file_in_array{
 
 
 struct listing{
-    size_t pc;
+    long long int pc;
     char* instruction;
     int bytecode;
 };

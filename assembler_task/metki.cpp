@@ -1,4 +1,5 @@
 #include "metki.h"
+#include "assembler_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,7 +33,7 @@ metki metki_init(assembler* assembl){
 
     // DEBUG
     for(int i = 0; i < 10; i++){
-        printf("[%d]: %d\n", i, metki_arr[i]);
+        printf("[%d]: %d\n", i, m.metki_arr[i]);
     }
     printf("---------\n");
 

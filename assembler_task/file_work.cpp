@@ -93,18 +93,19 @@ char** create_ptr_array(file_in_array* file_in_arr)
 void put_buffer_to_file(const char *name_of_file, assembler* assembl)
 {
     assert(name_of_file != NULL);
+    assert(assembl != NULL);
     char buffer[256] = {};
 
     FILE *fptr = fopen(name_of_file, "wb");
     assert(fptr != NULL);
 
-    const char *null_term = NULL;
-
     // TODO прочекать что функции безопасные
     fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
 
+    //TODO прочекать что все(указатели) ненулевое
     fwrite(&assembl->asm_bytecode_size, sizeof(size_t), 1, fptr);
 
+    //TODO прочекать что все(указатели) ненулевое
     fwrite(assembl->bytecode, sizeof(int), assembl->asm_bytecode_size, fptr);
 
     fclose(fptr);

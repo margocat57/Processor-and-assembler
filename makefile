@@ -29,20 +29,32 @@ assembler_task/file_work.o: assembler_task/file_work.cpp
 assembler_task/parsing_str.o: assembler_task/parsing_str.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
-assembler_task/assembler_str_init.o: assembler_task/assembler_str_init.cpp
+assembler_task/assembler_struct.o: assembler_task/assembler_struct.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
 assembler_task/metki.o: assembler_task/metki.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
-# Правило для файлов в корневой папке
-%.o: %.cpp
+processor_task/main_proc.o: processor_task/main_proc.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
-assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_str_init.o assembler_task/metki.o
+processor_task/parse_asm_from_file.o: processor_task/parse_asm_from_file.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
+processor_task/processor.o: processor_task/processor.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
+processor_task/calcul.o: processor_task/calcul.cpp
+	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
+# Правило для файлов в корневой папке
+#%.o: %.cpp
+#	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+
+assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o
 	$(COMP) -o $@ $^
 
-processor: main_proc.o parse_asm_from_file.o assembler_task/file_work.o calcul.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor.o
+processor: processor_task/main_proc.o processor_task/parse_asm_from_file.o assembler_task/file_work.o processor_task/calcul.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor_task/processor.o
 	$(COMP) -o $@ $^
 
 #calc: main.o calcul.o file_work.o parsing_str.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o

@@ -68,7 +68,7 @@ const comands_and_size COMANDS[]={
     {"JE"   , 2,  JE,   1, JUMP_WITH_COND},    //14
     {"JNE"  , 3, JNE,   1, JUMP_WITH_COND},    //15
     {"JMP"  , 3, JMP,   1, JUMP_WITH_COND},    //16
-    {"CALL" , 4, CALL,  1, OTHER},   //17
+    {"CALL" , 4, CALL,  1, JUMP_WITH_COND},    //17
     {"RET"  , 3, RET,   0, OTHER},   //18
     {"PUSHM", 5, PUSHM, 1, PUSHRM_POPRM}, //19
     {"POPM", 4, POPM,   1, PUSHRM_POPRM},  //20
@@ -79,7 +79,7 @@ const comands_and_size COMANDS[]={
 };
 
 // bytecode parse_comands(char** ptr_arr, size_t num_of_str);
-uint64_t parser(assembler* assembl);
+assembler_err_t parser(assembler* assembl);
 
 listing* fill_listing_struct(assembler* assembl);
 

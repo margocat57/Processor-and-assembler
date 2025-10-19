@@ -18,7 +18,7 @@ static char* skip_space(char* current_str){
 }
 
 listing* fill_listing_struct(assembler* assembl){
-    listing* info = (listing*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(listing));
+    listing* info = (listing*)calloc(assembl->file_in_arr.amount_str, sizeof(listing));
     if(!info){
         return NULL;
     }
@@ -26,16 +26,16 @@ listing* fill_listing_struct(assembler* assembl){
     // сделать соовевтие строк и адресов - и передавать как элемент ассемблера
     for (size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
         for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
-            assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
-            // В отдельную функцию, она будет простой
-            if(!COMANDS[cmd].name_of_comand){
+            if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
                 continue;
             }
+            assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
+            // В отдельную функцию, она будет простой
             if(COMANDS[cmd].num_of_params >= 1 &&
                 !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                 (info + idx)->instruction = assembl->ptr_array[idx];
                 (info + idx)->pc = assembl->asm_bytecode_size;
-                (assembl->asm_bytecode_size)+=2;
+                (assembl->asm_bytecode_size) += 2;
                 break;
             }
             else if(!strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
@@ -44,12 +44,18 @@ listing* fill_listing_struct(assembler* assembl){
                 (assembl->asm_bytecode_size)++;
                 break;
             }
-            else if(strchr(assembl->ptr_array[idx], ':')){
+            else if(!strncmp(assembl->ptr_array[idx], ":", 1)){
                 (info + idx)->instruction = assembl->ptr_array[idx];
                 (info + idx)->pc = -1;
                 break;
             }
         }
+        // DEBUG - потом будет нормальный ассемблерный дамп и уберу это
+        // fprintf(stderr, "assembl->ptr_array[idx] = %s\n", assembl->ptr_array[idx]);
+        // fprintf(stderr, "instruct = %s\n", (info + idx)->instruction = assembl->ptr_array[idx]);
+        // fprintf(stderr, "(info + idx)->pc = %d\n", (info + idx)->pc);
+        // fprintf(stderr, "idx = %d\n", idx);
+        // fprintf(stderr, "size = %d\n", assembl->asm_bytecode_size);
     }
     return info;
 }
@@ -63,18 +69,18 @@ assembler_err_t parser(assembler* assembl){
         return ALLOC_ERROR;
     }
     // После рефакторинга metki уже будешь знать кол-во команд
-    int* arr_with_code = (int*)calloc(assembl->file_in_arr.amount_str * 2, sizeof(int));
+    int* arr_with_code = (int*)calloc(assembl->asm_bytecode_size, sizeof(int));
     if(!arr_with_code){
         fprintf(stderr, "Can't allocate memory for bytecode array");
         return ALLOC_ERROR;
     }
     assembl->bytecode = arr_with_code;
-    fprintf(stderr, "%d\n", assembl->file_in_arr.amount_str);
 
     for( ; assembl->asm_pc < assembl->file_in_arr.amount_str; assembl->asm_pc++){
+        // fprintf(stderr, "%d\n", assembl->asm_pc);
+        // fprintf(stderr, "instruct = %s\n", assembl->info[assembl->asm_pc].instruction);
         if(!assembl->info[assembl->asm_pc].instruction){
-            fprintf(stderr, "current ptr is null, parsing stopped");
-            break;
+            continue;
         }
 
         err = parse_cmnds(assembl);
@@ -91,13 +97,14 @@ assembler_err_t parser(assembler* assembl){
     return NO_MISTAKE;
 }
 
+// FIXME переделать call пока нарушена логика
 static assembler_err_t parse_cmnds(assembler* assembl){
     size_t length = 0;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
-        // вот здесь свич
+
         if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) 
-        || assembl->info[assembl->asm_pc].pc != -1 ){
+        || assembl->info[assembl->asm_pc].pc == -1 ){
             continue;
         }
 
@@ -113,7 +120,7 @@ static assembler_err_t parse_cmnds(assembler* assembl){
                 push(cmd, assembl);
                 break;
 
-            case OTHER:
+            case OTHER: // TODO to func
                 assembl->bytecode[assembl->info[assembl->asm_pc].pc] = COMANDS[cmd].bytecode;
                 break;
 
@@ -126,26 +133,33 @@ static assembler_err_t parse_cmnds(assembler* assembl){
 }
 
 static void push(int cmd, assembler* assembl){
-    //TODO адекватная адресация
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
+    assembl->bytecode[index_of_bytecode_array] = cmd;
     char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
 
-    assembl->asm_pc++;
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = atoi(current_str);
+    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+    assembl->bytecode[index_of_bytecode_array] = atoi(current_str);
 }
 
 static void func_with_metka(int cmd, assembler* assembl){
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    assembl->bytecode[index_of_bytecode_array] = cmd;
 
     char* current_str = assembl->info[assembl->asm_pc].instruction;
     current_str = strchr(current_str, ':'); // доходим до метки
     current_str++; // доходим до числа
 
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = assembl->metki_asm.metki_arr[atoi(current_str)];
+    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+    assembl->bytecode[index_of_bytecode_array] = assembl->metki_asm.metki_arr[atoi(current_str)];
 }
 
 static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc] = cmd;
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    assembl->bytecode[index_of_bytecode_array] = cmd;
 
     char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
 
@@ -155,6 +169,8 @@ static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
         return INCORRECT_REGISTR;
     }
 
-    assembl->bytecode[assembl->info[assembl->asm_pc].pc + 1] = current_str[0] - 'A';
+    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+    assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
+
     return NO_MISTAKE;
 }

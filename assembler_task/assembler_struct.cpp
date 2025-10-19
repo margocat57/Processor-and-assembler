@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "assembler_struct.h"
 #include "file_work.h"
 #include "parsing_str.h"
