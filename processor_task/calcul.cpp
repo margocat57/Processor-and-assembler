@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 #include "parse_asm_from_file.h"
-#include "assembler_task/parsing_str.h"
+#include "../assembler_task/parsing_str.h"
 #include "calcul.h"
-#include "stack_for_calcul/stack_func.h"
-#include "stack_for_calcul/my_assert.h"
-#include "stack_for_calcul/stack.h"
+#include "../stack_for_calcul/stack_func.h"
+#include "../stack_for_calcul/my_assert.h"
+#include "../stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
 #define CHECK_STACK_ERR(error) if (error != 0) { return error; } 
@@ -155,7 +155,7 @@ static stack_err_bytes popm(processor* intel){
     intel->ram_counter = intel->registr[(intel->code.comands)[intel->ic]];
     if(intel->ram_counter >= RAM_MAX_SIZE){
         fprintf(stderr, "RAM is full - can't add elem to ram");
-        intel->ic += 2;
+        intel->ic++;
         return RAM_OVERFLOW;
     }
 
@@ -170,7 +170,7 @@ static stack_err_bytes pushm(processor* intel){
     int temp = 0;
 
     intel->ic++;
-    // исправить
+    intel->ram_counter = intel->registr[(intel->code.comands)[intel->ic]];
     temp = intel->RAM[intel->ram_counter];
 
     CHECK_STACK_ERR(stack_push(intel->stack, &temp));
@@ -181,7 +181,7 @@ static stack_err_bytes pushm(processor* intel){
 
 static stack_err_bytes in(processor* intel){
     int temp = 0;
-    printf("Input coefficent of square equation:\n");
+    printf("Input parametr:\n");
     scanf("%d", &temp);
     CHECK_STACK_ERR(stack_push(intel->stack, &temp));
     intel->ic++;

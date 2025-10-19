@@ -30,8 +30,8 @@ struct assembler{
 };
 
 enum assembler_err{
-    NO_MISTAKE              = 0,
-    ALLOC_ERROR             = 1 << 0,
+    NO_MISTAKE_ASM          = 0,
+    ALLOC_ERROR_ASM         = 1 << 0,
     INCORRECT_METKA         = 1 << 1,
     INCORRECT_REGISTR       = 1 << 2,
     INCORRECT_CMD           = 1 << 3,

@@ -1,9 +1,7 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
-#include "stack_for_calcul/stack.h"
-#include "stack_for_calcul/mistakes_code.h"
-
-// FIXME Процессор в отдельную папку
+#include "../stack_for_calcul/stack.h"
+#include "../stack_for_calcul/mistakes_code.h"
 
 const int REGISTR_MAX_SIZE = 16;
 const int RAM_MAX_SIZE = 100;
@@ -31,6 +29,14 @@ struct res_and_err{
 processor init(const char* name_of_file);
 
 void processor_dump(processor* intel);
+
+void bytecode_dump(processor* intel);
+
+void ram_dump(processor* intel);
+
+void reg_dump(processor* intel);
+
+void stack_dump_light(processor* intel);
 
 stack_err_bytes processor_verify(processor* intel);
 

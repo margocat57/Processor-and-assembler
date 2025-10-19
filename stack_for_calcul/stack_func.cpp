@@ -9,6 +9,7 @@
 #include "my_assert.h"
 #include "log.h"
 #include "stack.h"
+#include "../processor_task/color_lib_proc.h"
 
 const char *FORM_SPEC_STK_EL = "%d";
 const int POISON = -6666;
@@ -176,20 +177,20 @@ void stack_dump(const stack_t_t *stack)
         return;
     }
 
-    DEBUG(printf_to_log_file("Stack was created at %s %s %d\n", stack->file, stack->func, stack->line);)
+    DEBUG(printf_to_log_file( GREEN_EMERALD  "Stack was created at %s %s %d\n" COLOR_RESET, stack->file, stack->func, stack->line);)
 
-    printf_to_log_file("Stack adress %p\n", stack);
-    printf_to_log_file("Front stack canary: %X\n", stack->front_canary);
-    printf_to_log_file("Data adress: %p\n", stack->data);
-    printf_to_log_file("Pointer points at: %lu\n", stack->top);
-    printf_to_log_file("Stack capacity: %lu\n", stack->capacity);
+    printf_to_log_file(GREEN_FOREST "Stack adress %p\n" COLOR_RESET, stack);
+    printf_to_log_file(GREEN_SEA "Front stack canary: %X\n" COLOR_RESET, stack->front_canary);
+    printf_to_log_file(GREEN_MINT "Data adress: %p\n" COLOR_RESET, stack->data);
+    printf_to_log_file(GREEN_SPRING  "Pointer points at: %lu\n" COLOR_RESET, stack->top);
+    printf_to_log_file(GREEN_LIME  "Stack capacity: %lu\n" COLOR_RESET, stack->capacity);
 
     DEBUG(
-    printf_to_log_file("DJB2 hash for data array: %lu\n", stack->djb2_data);
-    printf_to_log_file("DJB2 hash for whole stack: %lu\n", stack->djb2_stack);
+    printf_to_log_file(GREEN_NEON "DJB2 hash for data array: %lu\n" COLOR_RESET, stack->djb2_data);
+    printf_to_log_file(GREEN_NEON "DJB2 hash for whole stack: %lu\n" COLOR_RESET, stack->djb2_stack);
     )
 
-    printf_to_log_file("Tail stack canary: %X\n", stack->tail_canary);
+    printf_to_log_file(GREEN_SEA "Tail stack canary: %X\n" COLOR_RESET, stack->tail_canary);
 
 
     if (!stack->data || stack->capacity == 0){
@@ -201,28 +202,28 @@ void stack_dump(const stack_t_t *stack)
     {
     if (stack->data[idx] == POISON)
     {
-        printf_to_log_file("[%lu] = ", idx);
+        printf_to_log_file(GREEN_PINE "[%lu] = " , idx);
         printf_to_log_file(FORM_SPEC_STK_EL, stack->data[idx]);
-        printf_to_log_file( " (POISON)\n");
+        printf_to_log_file( RED " (POISON)\n" COLOR_RESET);
     }
     DEBUG(
     else if (stack->data[idx] == TAIL_CANARY_DATA)
     {
-        printf_to_log_file("[%lu] = ", idx);
+        printf_to_log_file(GREEN_PINE "[%lu] = ", idx);
         printf_to_log_file( FORM_SPEC_STK_EL, stack->data[idx]);
-        printf_to_log_file(" (TAIL DATA CANARY)\n");
+        printf_to_log_file(RED_BURGUNDY" (TAIL DATA CANARY)\n" COLOR_RESET);
     }
     else if (stack->data[idx] == FRONT_CANARY_DATA)
     {
-        printf_to_log_file("[%lu] = ", idx);
+        printf_to_log_file(GREEN_PINE "[%lu] = ", idx);
         printf_to_log_file(FORM_SPEC_STK_EL, stack->data[idx]);
-        printf_to_log_file(" (FRONT DATA CANARY)\n");
+        printf_to_log_file(RED_BURGUNDY " (FRONT DATA CANARY)\n" COLOR_RESET);
     })
     else
     {
-        printf_to_log_file("^[%lu] = ", idx);
+        printf_to_log_file(GREEN_OLIVE_LIGHT "^[%lu] = ", idx);
         printf_to_log_file( FORM_SPEC_STK_EL, stack->data[idx]);
-        printf_to_log_file("\n", idx);
+        printf_to_log_file("\n" COLOR_RESET);
     }
     }
     printf_to_log_file("\n");

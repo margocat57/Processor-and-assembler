@@ -1,8 +1,9 @@
 #include "processor.h"
 #include "parse_asm_from_file.h"
-#include "stack_for_calcul/stack_func.h"
-#include "stack_for_calcul/mistakes_code.h"
-#include "stack_for_calcul/log.h"
+#include "../stack_for_calcul/stack_func.h"
+#include "../stack_for_calcul/mistakes_code.h"
+#include "../stack_for_calcul/log.h"
+#include "color_lib_proc.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -43,21 +44,57 @@ processor init(const char* name_of_file){
     return baikal;
 }
 
-void processor_dump(processor* intel){
-    printf_to_log_file("Num of elements in bytecode array: %lu\n", intel->code.size);
-    printf_to_log_file("Pointer to bytecode element: %lu\n", intel->ic);
-    printf_to_log_file("Register max size: %d\n", REGISTR_MAX_SIZE);
-    printf_to_log_file("Printing bytecode array:\n");
+void bytecode_dump(processor* intel){
+    printf_to_log_file( PURPLE "Num of elements in bytecode array: %lu\n" COLOR_RESET, intel->code.size);
     for(size_t idx = 0; idx < intel->code.size; idx++){
-        printf_to_log_file("[%d]: %d\n", idx, intel->code.comands[idx]);
+        if(intel->ic == idx){
+            printf_to_log_file(PINK_DARK "--> %d " COLOR_RESET, intel->code.comands[idx]);
+        }
+        printf_to_log_file(PURPLE_LIGHT "%d " COLOR_RESET, intel->code.comands[idx]);
     }
-    printf_to_log_file("Printing registers:\n");
+}
+
+void reg_dump(processor* intel){
+    printf_to_log_file(ORANGE "\nRegister max size: %d\n" COLOR_RESET, REGISTR_MAX_SIZE);
     for(size_t idx_reg = 0; idx_reg < REGISTR_MAX_SIZE; idx_reg++){
-        printf_to_log_file("R%cX: %d\n", idx_reg + 'A', intel->registr[idx_reg]);
+        if (idx_reg % 2 == 0) {
+        printf_to_log_file(ORANGE_LIGHT "R%cX: %d\t" COLOR_RESET, idx_reg + 'A', intel->registr[idx_reg]);
+        }
+        else{
+        printf_to_log_file(ORANGE_DARK "R%cX: %d\t" COLOR_RESET, idx_reg + 'A', intel->registr[idx_reg]);
+        }
+
+        if((idx_reg + 1) % 4 == 0){
+            printf_to_log_file("\n");
+        }
     }
-    //TODO вывод оперативной памяти
+}
+
+void ram_dump(processor* intel){
+    printf_to_log_file(BLUE "\nRAM max size %d\n" COLOR_RESET, RAM_MAX_SIZE);
+    for(size_t idx_ram = 0; idx_ram < RAM_MAX_SIZE; idx_ram++){
+        if (idx_ram % 2 == 0) {
+        printf_to_log_file(BLUE_LIGHT "%d\t" COLOR_RESET, intel->RAM[idx_ram]);
+        } 
+        else {
+        printf_to_log_file(BLUE_DARK "%d\t" COLOR_RESET, intel->RAM[idx_ram]);
+        }
+
+        if((idx_ram + 1) % 5 == 0){
+            printf_to_log_file("\n");
+        }
+    }
+}
+
+void processor_dump(processor* intel){
+    bytecode_dump(intel);
+
+    reg_dump(intel);
+
+    ram_dump(intel);
+
     stack_dump(intel->stack);
-    // добавить стек адресов возврата
+    stack_dump(intel->call_stack);
 }
 
 stack_err_bytes processor_verify(processor* intel){

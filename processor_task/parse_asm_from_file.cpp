@@ -4,7 +4,7 @@
 #include "string.h"
 #include <sys/stat.h>
 #include "parse_asm_from_file.h"
-#include "assembler_task/parsing_str.h"
+#include "../assembler_task/parsing_str.h"
 #include "processor.h"
 
 

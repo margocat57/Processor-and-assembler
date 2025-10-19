@@ -73,7 +73,7 @@ static void put_params(listing* info, assembler* assembl, long long int pc_in_by
 //  Зачем возвращать указатель на структуру, ты её и так меняешь по указателю
 // Лучше возвращать ошибку!
 assembler_err_t parser(assembler* assembl){
-    assembler_err_t err = NO_MISTAKE;
+    assembler_err_t err =NO_MISTAKE_ASM;
     if(!assembl){
         fprintf(stderr, "Can't work - NULL assembler ptr");
         return NULL_PTR;
@@ -81,13 +81,13 @@ assembler_err_t parser(assembler* assembl){
 
     if(!assembl->metki_asm.metki_arr){
         fprintf(stderr, "Can't use metki ");
-        return ALLOC_ERROR;
+        return ALLOC_ERROR_ASM;
     }
 
     int* arr_with_code = (int*)calloc(assembl->asm_bytecode_size, sizeof(int));
     if(!arr_with_code){
         fprintf(stderr, "Can't allocate memory for bytecode array");
-        return ALLOC_ERROR;
+        return ALLOC_ERROR_ASM;
     }
     assembl->bytecode = arr_with_code;
 
@@ -102,7 +102,7 @@ assembler_err_t parser(assembler* assembl){
         }
     }
 
-    return NO_MISTAKE;
+    return NO_MISTAKE_ASM;
 }
 
 static assembler_err_t parse_cmnds(assembler* assembl){
@@ -129,7 +129,7 @@ static assembler_err_t parse_cmnds(assembler* assembl){
         }
     }
 
-    return NO_MISTAKE;
+    return NO_MISTAKE_ASM;
 }
 
 static void other(int cmd, assembler* assembl){
@@ -197,5 +197,5 @@ static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
 
     assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
-    return NO_MISTAKE;
+    return NO_MISTAKE_ASM;
 }
