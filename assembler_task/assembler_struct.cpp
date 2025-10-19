@@ -9,9 +9,32 @@ assembler asm_init(const char* instructions_file){
     assembler assembl = {};
     // проверка что аргументы не пустые
     assembl.file_in_arr = read_file_to_string_array(instructions_file);
+    if(!assembl.file_in_arr.all_strings_in_file){
+        fprintf(stderr, "Can't read info from file to string array");
+        return {};
+    }
+
     assembl.ptr_array = create_ptr_array(&assembl.file_in_arr);
+    if(!assembl.ptr_array){
+        fprintf(stderr, "Can't create ptr array");
+        free_asm(&assembl);
+        return {};
+    }
+
     assembl.info = fill_listing_struct(&assembl);
+    if(!assembl.info){
+        fprintf(stderr, "Can't create struct with instucton, bytecode index");
+        free_asm(&assembl);
+        return {};
+    }
+
     assembl.metki_asm = metki_init(&assembl);
+    if(!assembl.metki_asm.metki_arr){
+        fprintf(stderr, "Can't create metki array");
+        free_asm(&assembl);
+        return {};
+    }
+
     if (parser(&assembl)){
         free_asm(&assembl);
         return {};
@@ -22,6 +45,11 @@ assembler asm_init(const char* instructions_file){
 
 
 void asm_dump(assembler* assembl){
+    if(!assembl || !assembl->info){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return;
+    }
+
     assembl->asm_pc = 0;
     const char* pc_str       = "PC";
     const char* assembly_str = "ASSEMBLY";

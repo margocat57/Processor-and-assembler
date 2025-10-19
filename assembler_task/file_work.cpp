@@ -9,8 +9,14 @@
 
 bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file)
 {
-    assert(name_of_file != NULL);
-    assert(all_info_about_file != NULL);
+    if(!name_of_file){
+        fprintf(stderr, "NULL pointer to file name");
+        return true;
+    }
+    if(!all_info_about_file){
+        fprintf(stderr, "NULL pointer to struct of all file info");
+        return true;
+    }
 
     if (stat(name_of_file, all_info_about_file) == -1)
     {
@@ -23,7 +29,10 @@ bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about
 
 int count_strings_by_symbols(char *array_to_search, char ch)
 {
-    assert(array_to_search != NULL);
+    if(!array_to_search){
+        fprintf(stderr, "NULL pointer to array_to_search");
+        return 0;
+    }
 
     int count_str = 1; // 1
 
@@ -37,12 +46,17 @@ int count_strings_by_symbols(char *array_to_search, char ch)
     return count_str;
 }
 
-file_in_array read_file_to_string_array(const char *name_of_file)
-{
-    assert(name_of_file != NULL);
+file_in_array read_file_to_string_array(const char *name_of_file){   
     file_in_array fptr_in_array = {};
+    if(!name_of_file){
+        fprintf(stderr, "NULL pointer to file name");
+        return fptr_in_array;
+    }
     FILE *fptr = fopen(name_of_file, "r");
-    assert(fptr != NULL);
+    if(!fptr){
+        fprintf(stderr, "Can't open file");
+        return fptr_in_array;
+    }
 
     struct stat file_info = {};
     fptr_in_array.is_stat_err = incorr_work_with_stat(name_of_file, &(file_info));
@@ -52,9 +66,15 @@ file_in_array read_file_to_string_array(const char *name_of_file)
     }
 
     char *all_strings_in_file = (char *)calloc(file_info.st_size + 1, sizeof(char));
-    assert(all_strings_in_file != NULL);
+    if(!all_strings_in_file){
+        fprintf(stderr, "ALLOC ERROR for all strings array");
+        return fptr_in_array;
+    }
 
-    assert(fread(all_strings_in_file, sizeof(char), file_info.st_size, fptr) == file_info.st_size);
+    if(fread(all_strings_in_file, sizeof(char), file_info.st_size, fptr) != file_info.st_size){
+        fprintf(stderr, "Can't read all strings from file to buffer");
+        return fptr_in_array;
+    }
 
     char *search_ptr = all_strings_in_file;
 
@@ -67,11 +87,17 @@ file_in_array read_file_to_string_array(const char *name_of_file)
     return fptr_in_array;
 }
 
-char** create_ptr_array(file_in_array* file_in_arr)
-{
-    assert(file_in_arr->all_strings_in_file != NULL);
+char** create_ptr_array(file_in_array* file_in_arr){   
+    if(!file_in_arr->all_strings_in_file ){
+        fprintf(stderr, "NULL pointer to all strings array");
+        return NULL;
+    }
+
     char** arr_with_ptr_sz = (char **)calloc(file_in_arr->amount_str, sizeof(char*));
-    assert(arr_with_ptr_sz != NULL);
+    if(!arr_with_ptr_sz){
+        fprintf(stderr, "ALLOC ERROR for ptr_array");
+        return NULL;
+    }
 
     size_t num_of_elem = 0;
     arr_with_ptr_sz[num_of_elem] = file_in_arr->all_strings_in_file;
@@ -92,21 +118,45 @@ char** create_ptr_array(file_in_array* file_in_arr)
 // если это массив строк то можно сделать переносы
 void put_buffer_to_file(const char *name_of_file, assembler* assembl)
 {
-    assert(name_of_file != NULL);
-    assert(assembl != NULL);
+    if(!name_of_file){
+        fprintf(stderr, "NULL pointer to file name - can't work");
+        return;
+    }
+    if(!assembl){
+        fprintf(stderr, "NULL pointer to asm struct - can't work");
+        return;
+    }
     char buffer[256] = {};
 
     FILE *fptr = fopen(name_of_file, "wb");
-    assert(fptr != NULL);
+    if(!fptr){
+        fprintf(stderr, "Can't open file to write");
+        return;
+    }
 
-    // TODO прочекать что функции безопасные
-    fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr);
+    if(BYTECODE_AUTOR_STR){
+        if(fwrite(BYTECODE_AUTOR_STR, sizeof(char), strlen(BYTECODE_AUTOR_STR), fptr) != strlen(BYTECODE_AUTOR_STR)){
+            fprintf(stderr, "Can't write author str to file - writing stopped");
+            fclose(fptr);
+            return;
+        }
+    }
 
-    //TODO прочекать что все(указатели) ненулевое
-    fwrite(&assembl->asm_bytecode_size, sizeof(size_t), 1, fptr);
+    if(&assembl->asm_bytecode_size){
+        if(fwrite(&assembl->asm_bytecode_size, sizeof(size_t), 1, fptr) != 1){
+            fprintf(stderr, "Can't write num of elem of bytecode to file - writing stopped");
+            fclose(fptr);
+            return;
+        }
+    }
 
-    //TODO прочекать что все(указатели) ненулевое
-    fwrite(assembl->bytecode, sizeof(int), assembl->asm_bytecode_size, fptr);
+    if(assembl->bytecode){
+        if(fwrite(assembl->bytecode, sizeof(int), assembl->asm_bytecode_size, fptr) != assembl->asm_bytecode_size){
+            fprintf(stderr, "Can't write num of elem of bytecode to file - writing stopped");
+            fclose(fptr);
+            return;
+        }
+    }
 
     fclose(fptr);
 }

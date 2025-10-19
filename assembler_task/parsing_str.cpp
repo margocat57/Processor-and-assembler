@@ -16,14 +16,25 @@ static void other(int cmd, assembler* assembl);
 static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx);
 
 static char* skip_space(char* current_str){
+    if(!current_str){
+        fprintf(stderr, "Can't work - NULL current_str ptr");
+        return NULL;
+    }
+
     char* str_without_space = current_str;
     str_without_space = str_without_space + strspn(current_str, " \t\n\r\f\v");
     return str_without_space;
 }
 
 listing* fill_listing_struct(assembler* assembl){
+    if(!assembl){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return NULL;
+    }
+
     listing* info = (listing*)calloc(assembl->file_in_arr.amount_str, sizeof(listing));
     if(!info){
+        fprintf(stderr, "Can't alloc memory for info arr");
         return NULL;
     }
     long long int no_cmd = -1;
@@ -34,7 +45,6 @@ listing* fill_listing_struct(assembler* assembl){
                 continue;
             }
             assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
-            // В отдельную функцию, она будет простой
             if(COMANDS[cmd].num_of_params >= 1 &&
                 !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                 put_params(info, assembl, assembl->asm_bytecode_size, idx);
@@ -60,17 +70,20 @@ static void put_params(listing* info, assembler* assembl, long long int pc_in_by
     (info + idx)->pc = pc_in_bytecode_arr;
 }
 
-
-
 //  Зачем возвращать указатель на структуру, ты её и так меняешь по указателю
 // Лучше возвращать ошибку!
 assembler_err_t parser(assembler* assembl){
     assembler_err_t err = NO_MISTAKE;
+    if(!assembl){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return NULL_PTR;
+    }
+
     if(!assembl->metki_asm.metki_arr){
         fprintf(stderr, "Can't use metki ");
         return ALLOC_ERROR;
     }
-    // После рефакторинга metki уже будешь знать кол-во команд
+
     int* arr_with_code = (int*)calloc(assembl->asm_bytecode_size, sizeof(int));
     if(!arr_with_code){
         fprintf(stderr, "Can't allocate memory for bytecode array");
@@ -93,6 +106,11 @@ assembler_err_t parser(assembler* assembl){
 }
 
 static assembler_err_t parse_cmnds(assembler* assembl){
+    if(!assembl){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return NULL_PTR;
+    }
+
     size_t length = 0;
     for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");

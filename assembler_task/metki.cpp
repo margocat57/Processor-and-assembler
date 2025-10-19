@@ -17,6 +17,11 @@ static void metki_dump(metki metki){
 
 metki metki_init(assembler* assembl){
     metki mtk = {};
+    if(!assembl){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return mtk;
+    }
+
     int* metki_arr = (int*)calloc(sizeof(int), MAX_NUMBER_OF_METKI); 
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
@@ -49,6 +54,11 @@ metki metki_init(assembler* assembl){
 }
 
 void metki_destroy(assembler* assembl){
+    if(!assembl){
+        fprintf(stderr, "Can't work - NULL assembler ptr");
+        return;
+    }
+
     if(assembl->metki_asm.metki_arr){
         memset(assembl->metki_asm.metki_arr, 0, MAX_NUMBER_OF_METKI * sizeof(int));
         free(assembl->metki_asm.metki_arr);

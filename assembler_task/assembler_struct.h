@@ -34,8 +34,8 @@ enum assembler_err{
     ALLOC_ERROR             = 1 << 0,
     INCORRECT_METKA         = 1 << 1,
     INCORRECT_REGISTR       = 1 << 2,
-    INCORRECT_CMD           = 1 << 3
-    // NULL_STR_PTR            = 1 << 3,
+    INCORRECT_CMD           = 1 << 3,
+    NULL_PTR                = 1 << 4,
 };
 
 assembler asm_init(const char* instructions_file);
