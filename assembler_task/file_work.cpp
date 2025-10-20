@@ -27,14 +27,14 @@ bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about
     return false;
 }
 
-int count_strings_by_symbols(char *array_to_search, char ch)
+size_t count_strings_by_symbols(char *array_to_search, char ch)
 {
     if(!array_to_search){
         fprintf(stderr, "NULL pointer to array_to_search");
         return 0;
     }
 
-    int count_str = 1; // 1
+    size_t count_str = 1; // 1
 
     while ((array_to_search = strchr(array_to_search, ch)) != NULL)
     {
@@ -65,13 +65,13 @@ file_in_array read_file_to_string_array(const char *name_of_file){
         return fptr_in_array;
     }
 
-    char *all_strings_in_file = (char *)calloc(file_info.st_size + 1, sizeof(char));
+    char *all_strings_in_file = (char *)calloc((size_t)(file_info.st_size + 1), sizeof(char));
     if(!all_strings_in_file){
         fprintf(stderr, "ALLOC ERROR for all strings array");
         return fptr_in_array;
     }
 
-    if(fread(all_strings_in_file, sizeof(char), file_info.st_size, fptr) != file_info.st_size){
+    if(fread(all_strings_in_file, sizeof(char), (size_t)file_info.st_size, fptr) != (size_t)file_info.st_size){
         fprintf(stderr, "Can't read all strings from file to buffer");
         return fptr_in_array;
     }

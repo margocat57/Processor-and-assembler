@@ -10,8 +10,8 @@ int main(){
     processor_dump(&baikal);
 
     // доп таска
-    fill_video_ram(&baikal);
-    show_square(&baikal);
+    // fill_video_ram(&baikal);
+    // show_square(&baikal);
 
     processor_free(&baikal);
     return 0;

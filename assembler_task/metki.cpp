@@ -40,10 +40,10 @@ metki metki_init(assembler* assembl){
                 break;
             }
             if(idx + 1 < assembl->file_in_arr.amount_str){
-                if(metka < 10)
-                    metki_arr[metka] = assembl->info[idx + 1].pc; 
+                if(metka < MAX_NUMBER_OF_METKI)
+                    metki_arr[metka] = (int)assembl->info[idx + 1].pc; 
                 else 
-                    metki_arr[0] = assembl->info[idx + 1].pc; 
+                    metki_arr[0] = (int)assembl->info[idx + 1].pc; 
             }
         }
     }

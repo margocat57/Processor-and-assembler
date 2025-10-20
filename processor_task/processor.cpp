@@ -147,7 +147,7 @@ void processor_free(processor* intel){
 
 
 
-
+/*
 
 // Additional task - square r = 50
 void fill_video_ram(processor* intel){
@@ -219,3 +219,4 @@ void show_square(processor* intel){
         }
     }
 }
+*/

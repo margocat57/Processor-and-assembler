@@ -47,12 +47,12 @@ listing* fill_listing_struct(assembler* assembl){
             assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
             if(COMANDS[cmd].num_of_params >= 1 &&
                 !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                put_params(info, assembl, assembl->asm_bytecode_size, idx);
+                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx);
                 (assembl->asm_bytecode_size) += 2;
                 break;
             }
             else if(!strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                put_params(info, assembl, assembl->asm_bytecode_size, idx);
+                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx);
                 (assembl->asm_bytecode_size)++;
                 break;
             }
@@ -132,7 +132,7 @@ static assembler_err_t parse_cmnds(assembler* assembl){
 
 static void other(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
-    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
     assembl->bytecode[index_of_bytecode_array] = cmd;
     assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
@@ -142,7 +142,7 @@ static void other(int cmd, assembler* assembl){
 
 static void push(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
-    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
     assembl->bytecode[index_of_bytecode_array] = cmd;
     assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
@@ -158,7 +158,7 @@ static void push(int cmd, assembler* assembl){
 
 static void func_with_metka(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
-    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
     assembl->bytecode[index_of_bytecode_array] = cmd;
     assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
@@ -176,7 +176,7 @@ static void func_with_metka(int cmd, assembler* assembl){
 
 static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
-    size_t index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
     assembl->bytecode[index_of_bytecode_array] = cmd;
     assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];

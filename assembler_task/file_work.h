@@ -6,7 +6,7 @@
 
 bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file);
 
-int count_strings_by_symbols(char *array_to_search, char ch);
+size_t count_strings_by_symbols(char *array_to_search, char ch);
 
 file_in_array read_file_to_string_array(const char *name_of_file);
 
