@@ -63,3 +63,8 @@ processor: processor_task/main_proc.o processor_task/parse_asm_from_file.o proce
 clean:
 	rm -f assembler_task/*.o processor_task/*.o stack_for_calcul/*.o *.o assembler processor
 # *.p
+
+#clang++ -o assembler assembler_task/*.cpp && ./assembler
+#clang++ -o processor processor_task/*.cpp stack_for_calcul/*.cpp && ./processor
+#rm -f processor processor_task/*.o stack_for_calcul/*.o *.o
+#rm -f assembler assembler_task/*.o

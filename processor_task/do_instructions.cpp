@@ -2,7 +2,7 @@
 #include <math.h>
 #include "parse_asm_from_file.h"
 #include "../assembler_task/parsing_str.h"
-#include "calcul.h"
+#include "do_instructions.h"
 #include "../stack_for_calcul/stack_func.h"
 #include "../stack_for_calcul/my_assert.h"
 #include "../stack_for_calcul/stack.h"
@@ -48,7 +48,7 @@
 
 #define DO_DRAW_CASE(function) \
     function; \
-    intel->ic++;\ 
+    intel->ic++; \
     break; \
 
 static stack_err_bytes proc_push(processor* intel);
