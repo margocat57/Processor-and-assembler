@@ -6,7 +6,7 @@
 int main(){
     processor baikal = {};
     baikal = init("assembler_task/ass.bin");
-    stack_err_bytes a = do_processor_comands(&baikal);
+    stack_err_bytes err_main = do_processor_comands(&baikal);
     processor_dump(&baikal);
 
     // доп таска

@@ -215,7 +215,7 @@ static stack_err_bytes sqrt(processor* intel){
 
     if(pop >= 0){
         temp = sqrt(pop);
-        pop = round(temp);
+        pop = (int)round(temp);
         CHECK_STACK_ERR(stack_push(intel->stack, &pop));
     }
 
@@ -229,7 +229,7 @@ static stack_err_bytes call(processor* intel){
     CHECK_STACK_ERR(stack_push(intel->call_stack, &return_address));
 
     intel->ic--; //  перескакиваем на прошлую команду
-    intel -> ic = intel->code.comands[intel -> ic]; 
+    intel -> ic = (size_t)intel->code.comands[intel -> ic]; 
 
     return NO_MISTAKE;
 }
@@ -237,7 +237,7 @@ static stack_err_bytes call(processor* intel){
 static stack_err_bytes ret(processor* intel){
     int idx = 0;
     CHECK_STACK_ERR(stack_pop(intel->call_stack, &idx));
-    intel->ic = idx; //да будет ругаться, что из int в size_t но стек на интах и тут ничего не поделаешь
+    intel->ic = (size_t)idx; //да будет ругаться, что из int в size_t но стек на интах и тут ничего не поделаешь
 
     return NO_MISTAKE;
 }
@@ -245,7 +245,7 @@ static stack_err_bytes ret(processor* intel){
 
 static stack_err_bytes jump_if_condition_sw(processor* intel, bool condition){
     if(condition){
-        intel -> ic = intel->code.comands[intel -> ic + 1];
+        intel -> ic = (size_t)intel->code.comands[intel -> ic + 1];
         return NO_MISTAKE;
     }
     intel->ic++; // перепрыгиваем на следуюбщий элемент - номер строки

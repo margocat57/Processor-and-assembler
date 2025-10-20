@@ -4,7 +4,7 @@
 #include "../stack_for_calcul/mistakes_code.h"
 #include "../stack_for_calcul/log.h"
 #include "color_lib_proc.h"
-#include "SFML/Graphics.hpp"
+// #include "SFML/Graphics.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "mistakes_code.h"
 
-typedef int64_t stack_err_bytes; 
+typedef uint64_t stack_err_bytes; 
 
 typedef int stack_elem_t; 
 
