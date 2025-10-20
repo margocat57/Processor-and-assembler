@@ -6,6 +6,12 @@
 const int REGISTR_MAX_SIZE = 16;
 const int RAM_MAX_SIZE = 100;
 
+const int WIDTH = 100;
+const int HEIGHT = 100;
+const int PIXELSIZE = 5;
+const int VIDEO_RAM_MAX_SIZE = WIDTH * HEIGHT * 3;
+const int R = 50;
+
 struct code_and_size{
     int* comands;
     size_t size;
@@ -19,6 +25,7 @@ struct processor{
     stack_t_t* call_stack;
     int RAM[RAM_MAX_SIZE];
     int ram_counter;
+    unsigned int VIDEO_RAM[VIDEO_RAM_MAX_SIZE];
 };
 
 struct res_and_err{
@@ -39,6 +46,10 @@ void reg_dump(processor* intel);
 stack_err_bytes processor_verify(processor* intel);
 
 void processor_free(processor* intel);
+
+void fill_video_ram(processor* intel);
+
+void show_square(processor* intel);
 
 enum registr{
     RAX = 0,

@@ -4,8 +4,10 @@
 #include "../stack_for_calcul/mistakes_code.h"
 #include "../stack_for_calcul/log.h"
 #include "color_lib_proc.h"
+#include "SFML/Graphics.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 processor init(const char* name_of_file){
     processor baikal = {};
@@ -137,5 +139,83 @@ void processor_free(processor* intel){
     if(intel->call_stack){
         stack_free(intel->call_stack);
         intel->call_stack = NULL;
+    }
+}
+
+
+
+
+
+
+
+
+// Additional task - square r = 50
+void fill_video_ram(processor* intel){
+    if(!intel){
+        fprintf(stderr, "Pointer to processor is NULL - can't work");
+        return;
+    }
+    int index = 0;
+    double x_coord = 0;
+    double y_coord = 0;
+    int centr_x = WIDTH / 2;
+    int centr_y = HEIGHT / 2;
+
+    for(int y = 0; y < HEIGHT; y++){
+        for(int x = 0; x < WIDTH; x++){
+            index = (y * WIDTH + x) * 3;
+            x_coord = fabs(x - centr_x);
+            y_coord = fabs(y - centr_y);
+            if(x_coord*x_coord + y_coord*y_coord <= R){
+                intel->VIDEO_RAM[index] = 199;
+                intel->VIDEO_RAM[index + 1] = 21;
+                intel->VIDEO_RAM[index + 2] = 133;
+            }
+            else{
+                intel->VIDEO_RAM[index] = 0;
+                intel->VIDEO_RAM[index + 1] = 0;
+                intel->VIDEO_RAM[index + 2] = 0;
+            }
+        }
+    }
+}
+
+void show_square(processor* intel){
+    if(!intel){
+        fprintf(stderr, "Pointer to processor is NULL - can't work");
+        return;
+    }
+
+    sf::RenderWindow window(sf::VideoMode({WIDTH * PIXELSIZE, HEIGHT * PIXELSIZE}), "Display square");
+
+    sf::RectangleShape pixel(sf::Vector2f(PIXELSIZE, PIXELSIZE));
+
+    while (window.isOpen()){
+        while (const std::optional event = window.pollEvent()){
+            if (event->is<sf::Event::Closed>())
+                window.close();
+        }
+
+        window.clear();
+        
+        if (window.isOpen()){
+            for (int y = 0; y < HEIGHT; ++y){
+                for (int x = 0; x < WIDTH; ++x){
+                    int idx = (y * WIDTH + x) * 3;
+                    pixel.setFillColor(sf::Color(
+                        intel->VIDEO_RAM[idx], 
+                        intel->VIDEO_RAM[idx + 1], 
+                        intel->VIDEO_RAM[idx + 2]
+                    ));
+                    pixel.setPosition(sf::Vector2f(
+                        x * PIXELSIZE, 
+                        y * PIXELSIZE
+                    ));
+                    window.draw(pixel);
+                }
+            }
+            
+            window.display();
+        }
     }
 }

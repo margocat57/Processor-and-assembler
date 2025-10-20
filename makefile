@@ -7,6 +7,8 @@ COMP=clang++
 
 CFLAGS_WITH_DEBUG = -ggdb3 -std=c++20 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 -fPIE -Werror=vla -Wno-c++11-extensions
 # CFLAGS = -D _DEBUG
+SFML_LIBS := -L/usr/local/lib -lsfml-graphics -lsfml-window -lsfml-system
+SFML_CFLAGS := -I/usr/local/include
 
 stack_for_calcul/hash.o: stack_for_calcul/hash.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
@@ -42,7 +44,7 @@ processor_task/parse_asm_from_file.o: processor_task/parse_asm_from_file.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
 processor_task/processor.o: processor_task/processor.cpp
-	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
+	$(COMP) $(SFML_CFLAGS) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
 processor_task/do_instructions.o: processor_task/do_instructions.cpp
 	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
@@ -55,7 +57,7 @@ assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_tas
 	$(COMP) -o $@ $^
 
 processor: processor_task/main_proc.o processor_task/parse_asm_from_file.o processor_task/do_instructions.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor_task/processor.o
-	$(COMP) -o $@ $^
+	$(COMP) -o $@ $^ $(SFML_LIBS)
 
 #calc: main.o calcul.o file_work.o parsing_str.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o
 #	$(COMP) -o $@ $^
