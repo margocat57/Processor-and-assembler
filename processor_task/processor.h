@@ -33,6 +33,22 @@ struct res_and_err{
     stack_err_bytes proc_err;
 };
 
+//! @brief Initializes processor structure and allocates necessary resources
+//!
+//!  Initialization Sequence:
+//! 1. Creates zero-initialized processor structure
+//! 2. Validates filename pointer is not NULL
+//! 3. Loads bytecode from file into processor's code field
+//! 4. Creates main execution stack for operations
+//! 5. Creates call stack for function calls and returns
+//! 6. Initializes runtime counters:
+//!    - ram_counter: Memory address pointer
+//!    - ic: Instruction counter (program counter)
+//!
+//! @par Error Handling:
+//! - Returns empty structure if any initialization step fails
+//! - Performs cleanup via processor_free() on partial initialization failures
+//! - Provides error messages for each failure case
 processor init(const char* name_of_file);
 
 void processor_dump(processor* intel);
@@ -45,6 +61,13 @@ void reg_dump(processor* intel);
 
 stack_err_bytes processor_verify(processor* intel);
 
+//! @brief Free all processor resources
+//!
+//! @par Cleanup Sequence:
+//! 1. Validates processor pointer is not NULL
+//! 2. Frees main execution stack and nullifies pointer
+//! 3. Zeroes and frees bytecode array, nullifies pointer  
+//! 4. Frees call stack and nullifies pointer
 void processor_free(processor* intel);
 
 void fill_video_ram(processor* intel);

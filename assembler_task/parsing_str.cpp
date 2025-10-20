@@ -1,16 +1,62 @@
+//!@file
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "parsing_str.h"
 
+//! @brief Dispatches command parsing to appropriate handler based on command type
+//!
+//! Operation:
+//! 1. Validates assembler pointer
+//! 2. Iterates through all known commands (COMANDS array)
+//! 3. Compares instruction length and content with command definitions
+//! 4. Skips labels (pc == -1) and non-matching commands
+//! 5. Routes matching commands to appropriate parser based on elem_type:
+//!    - PUSHRM_POPRM: pushrm_poprm() for register/arm operations
+//!    - JUMP_WITH_COND: func_with_metka() for conditional jumps
+//!    - PUSH_TYPE: push() for push operations
+//!    - OTHER: other() for all other commands
+//! 6. Returns INCORRECT_CMD for unknown command types
 static assembler_err_t parse_cmnds(assembler* assembl);
 
+//! @brief Processes register-based PUSH/POP operations
+//!
+//! For register/ram operations:
+//! - Writes command bytecode to array and listing
+//! - Extracts register name from instruction 
+//! - Validates register letter is in range of max number of registers
+//! - Returns error if register is outside valid range
+//! - Converts register letter to numeric index
+//! - Writes register index to NEXT position in bytecode (pc + 1)
 static assembler_err_t pushrm_poprm(int cmd, assembler* assembl);
 
+//! @brief Processes jump commands with label targets
+//!
+//! For conditional/unconditional jumps:
+//! - Writes jump command bytecode to bytecode array  
+//! - Stores command in listing structure
+//! - Extracts label number from instruction (text after colon)
+//! - Looks up the target address from  metki array
+//! - Writes the resolved address to NEXT position in bytecode (pc + 1)
+//! - Stores both command and target address in listing
 static void func_with_metka(int cmd, assembler* assembl);
 
+//! @brief Processes PUSH commands with immediate numeric values
+//!
+//! For PUSH commands with direct values:
+//! - Writes the PUSH command bytecode to bytecode array
+//! - Stores the command in listing structure
+//! - Extracts numeric value from instruction string (after command name + space)
+//! - Writes the numeric argument to the next position in bytecode array (pc + 1)
+//! - Stores both command and argument in listing array
 static void push(int cmd, assembler* assembl);
 
+//! @brief Processes simple commands without arguments (e.g., ADD, SUB, MUL)
+//! 
+//! For commands that don't take any arguments:
+//! - Writes the command bytecode to the main bytecode array
+//! - Stores the same bytecode in the listing structure for debugging
+//! - Sets num_of_args to 0 in the listing array
 static void other(int cmd, assembler* assembl);
 
 static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx);
@@ -113,8 +159,8 @@ static assembler_err_t parse_cmnds(assembler* assembl){
     for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
 
-        if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) 
-        || assembl->info[assembl->asm_pc].pc == -1 ){
+        if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || assembl->info[assembl->asm_pc].pc == -1 
+        || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) ){
             continue;
         }
 

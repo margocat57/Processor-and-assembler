@@ -30,7 +30,6 @@ processor init(const char* name_of_file){
         return baikal;
     }
 
-    // пока создаем размером в код так как память дешевая, вопрос как лучше открытый
     baikal.call_stack = stack_ctor(baikal.code.size, __FILE__, __func__, __LINE__);
     if(!baikal.code.comands){
         fprintf(stderr, "Can't allocate stack memory to stack");

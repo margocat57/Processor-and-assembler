@@ -72,8 +72,6 @@ void asm_dump(assembler* assembl){
     }
 }
 
-//верификатор ассемблера
-
 void free_asm(assembler* assembl){
     if(assembl->file_in_arr.all_strings_in_file){
         memset(assembl->file_in_arr.all_strings_in_file, 0, assembl->file_in_arr.amount_str * sizeof(char));

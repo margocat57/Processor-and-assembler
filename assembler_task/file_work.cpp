@@ -7,8 +7,7 @@
 #include "file_work.h"
 #include "parsing_str.h"
 
-bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file)
-{
+bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about_file){
     if(!name_of_file){
         fprintf(stderr, "NULL pointer to file name");
         return true;
@@ -18,8 +17,7 @@ bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about
         return true;
     }
 
-    if (stat(name_of_file, all_info_about_file) == -1)
-    {
+    if (stat(name_of_file, all_info_about_file) == -1){
         perror("Stat error");
         fprintf(stderr, "Error code: %d\n", errno);
         return true;
@@ -27,8 +25,7 @@ bool incorr_work_with_stat(const char *name_of_file, struct stat *all_info_about
     return false;
 }
 
-size_t count_strings_by_symbols(char *array_to_search, char ch)
-{
+size_t count_strings_by_symbols(char *array_to_search, char ch){
     if(!array_to_search){
         fprintf(stderr, "NULL pointer to array_to_search");
         return 0;
@@ -36,8 +33,7 @@ size_t count_strings_by_symbols(char *array_to_search, char ch)
 
     size_t count_str = 1; // 1
 
-    while ((array_to_search = strchr(array_to_search, ch)) != NULL)
-    {
+    while ((array_to_search = strchr(array_to_search, ch)) != NULL){
         count_str++;
         *(array_to_search) = '\0';
         array_to_search++;
@@ -60,8 +56,7 @@ file_in_array read_file_to_string_array(const char *name_of_file){
 
     struct stat file_info = {};
     fptr_in_array.is_stat_err = incorr_work_with_stat(name_of_file, &(file_info));
-    if (fptr_in_array.is_stat_err)
-    {
+    if (fptr_in_array.is_stat_err){
         return fptr_in_array;
     }
 
@@ -105,8 +100,7 @@ char** create_ptr_array(file_in_array* file_in_arr){
 
     char *search_ptr = file_in_arr->all_strings_in_file;
 
-    for (num_of_elem = 1; num_of_elem <= file_in_arr->amount_str; num_of_elem++)
-    {
+    for (num_of_elem = 1; num_of_elem <= file_in_arr->amount_str; num_of_elem++){
         arr_with_ptr_sz[num_of_elem] = search_ptr + strlen(search_ptr) + 1;
         if (num_of_elem != file_in_arr->amount_str)
             search_ptr += strlen(search_ptr) + 1;
@@ -115,9 +109,7 @@ char** create_ptr_array(file_in_array* file_in_arr){
     return arr_with_ptr_sz;
 }
 
-// если это массив строк то можно сделать переносы
-void put_buffer_to_file(const char *name_of_file, assembler* assembl)
-{
+void put_buffer_to_file(const char *name_of_file, assembler* assembl){
     if(!name_of_file){
         fprintf(stderr, "NULL pointer to file name - can't work");
         return;

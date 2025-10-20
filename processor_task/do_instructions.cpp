@@ -1,3 +1,4 @@
+//!@file
 #include <stdio.h>
 #include <math.h>
 #include "parse_asm_from_file.h"
@@ -10,6 +11,7 @@
 
 #define CHECK_STACK_ERR(error) if (error != 0) { return error; } 
 
+//! jump_if_condition - Compares two numbers from the stack and if condition is true, jumps to the specified label
 #define JUMP_IF(intel, comp) \
     do { \
         int t1 = 0, t2 = 0; \
@@ -61,18 +63,23 @@ static stack_err_bytes jump_if_condition_sw(processor*intel, bool condition);
 
 static stack_err_bytes out(processor* intel, int* result);
 
+//! in - Reads input from keyboard and pushes it in the stack 
 static stack_err_bytes in(processor* intel);
 
 static stack_err_bytes popr(processor* intel);
 
 static stack_err_bytes pushr(processor* intel);
 
+//! popm - Pops the top element from the stack into RAM at the index specified in the register
 static stack_err_bytes popm(processor* intel);
 
+//! pushm - Pushes an element from RAM into the stack using the index specified in the register
 static stack_err_bytes pushm(processor* intel);
 
+//! call - Saves the next instruction address after the call in the call stack and jumps to the target label
 static stack_err_bytes call(processor* intel);
 
+//! ret - Takes the address of the last instruction from the call stack and jumps to it
 static stack_err_bytes ret(processor* intel);
 
 stack_err_bytes do_processor_comands(processor* intel){
