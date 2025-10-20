@@ -7,7 +7,6 @@
 
 assembler asm_init(const char* instructions_file){
     assembler assembl = {};
-    // проверка что аргументы не пустые
     assembl.file_in_arr = read_file_to_string_array(instructions_file);
     if(!assembl.file_in_arr.all_strings_in_file){
         fprintf(stderr, "Can't read info from file to string array");

@@ -39,8 +39,8 @@ listing* fill_listing_struct(assembler* assembl){
     }
     long long int no_cmd = -1;
 
-    for (size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
-        for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
+    for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
+        for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
             if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
                 continue;
             }
@@ -70,8 +70,6 @@ static void put_params(listing* info, assembler* assembl, long long int pc_in_by
     (info + idx)->pc = pc_in_bytecode_arr;
 }
 
-//  Зачем возвращать указатель на структуру, ты её и так меняешь по указателю
-// Лучше возвращать ошибку!
 assembler_err_t parser(assembler* assembl){
     assembler_err_t err =NO_MISTAKE_ASM;
     if(!assembl){
@@ -112,7 +110,7 @@ static assembler_err_t parse_cmnds(assembler* assembl){
     }
 
     size_t length = 0;
-    for(size_t cmd = 1; cmd < AMNT_CMD; cmd++){
+    for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
 
         if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) 

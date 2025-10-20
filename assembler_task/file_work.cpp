@@ -126,7 +126,6 @@ void put_buffer_to_file(const char *name_of_file, assembler* assembl)
         fprintf(stderr, "NULL pointer to asm struct - can't work");
         return;
     }
-    char buffer[256] = {};
 
     FILE *fptr = fopen(name_of_file, "wb");
     if(!fptr){
@@ -142,7 +141,7 @@ void put_buffer_to_file(const char *name_of_file, assembler* assembl)
         }
     }
 
-    if(&assembl->asm_bytecode_size){
+    if(assembl->asm_bytecode_size){
         if(fwrite(&assembl->asm_bytecode_size, sizeof(size_t), 1, fptr) != 1){
             fprintf(stderr, "Can't write num of elem of bytecode to file - writing stopped");
             fclose(fptr);

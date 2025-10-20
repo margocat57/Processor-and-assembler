@@ -29,7 +29,6 @@ metki metki_init(assembler* assembl){
     }
 
     char* current_str = NULL;
-    int count = 0;
     int metka = 0;
 
     for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){

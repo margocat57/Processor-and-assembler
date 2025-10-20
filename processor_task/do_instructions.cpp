@@ -48,7 +48,7 @@
 
 #define DO_DRAW_CASE(function) \
     function; \
-    intel->ic++; \ 
+    intel->ic++;\ 
     break; \
 
 static stack_err_bytes proc_push(processor* intel);
@@ -83,7 +83,7 @@ stack_err_bytes do_processor_comands(processor* intel){
     }
 
     int result = 0;
-    char c = 'o'; // for pause debug
+    // char ch = 'o'; // for pause debug
     // processor_dump(intel);
 
     for(; intel->ic < intel->code.size;){
@@ -121,7 +121,7 @@ stack_err_bytes do_processor_comands(processor* intel){
         // printf("after:\n");
         // processor_dump(intel);
         // printf("Enter char to continue\n");
-        // c = getchar();
+        // ch = getchar();
         // end DEBUG code
     }
     res = processor_verify(intel);
