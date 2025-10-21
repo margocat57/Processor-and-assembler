@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "parsing_str.h"
 
+// TODO добавить комментарии
+
 //! @brief Dispatches command parsing to appropriate handler based on command type
 //!
 //! Operation:
@@ -164,6 +166,7 @@ static assembler_err_t parse_cmnds(assembler* assembl){
             continue;
         }
 
+        // вот здесь по хорошему тоже нужны указатели на функции - как сделать хз - подумаю
         switch(COMANDS[cmd].elem_type){
             case PUSHRM_POPRM:   return pushrm_poprm(cmd, assembl);
             case JUMP_WITH_COND: func_with_metka(cmd, assembl); break;
@@ -220,6 +223,7 @@ static void func_with_metka(int cmd, assembler* assembl){
     assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
 }
 
+// возможно стоит сделать 
 static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
@@ -233,7 +237,72 @@ static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
 
     current_str = strchr(current_str, 'X') - 1;
     if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cXin", current_str[0]);
+        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
+        return INCORRECT_REGISTR;
+    }
+
+    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+    assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
+
+    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
+    return NO_MISTAKE_ASM;
+}
+
+// добавить 2 функции с проверкой допустимости регистров
+static assembler_err_t pushr_popr(int cmd, assembler* assembl){
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
+    assembl->bytecode[index_of_bytecode_array] = cmd;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
+
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
+
+    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
+
+    current_str = strchr(current_str, 'R');
+    if(!current_str){
+        fprintf(stderr, "Incorrect registr, can't fing R in word");
+        return INCORRECT_REGISTR;
+    }
+    current_str = strchr(current_str, 'X');
+    if(!current_str){
+        fprintf(stderr, "Incorrect registr, can't fing X in word");
+        return INCORRECT_REGISTR;
+    }
+
+    current_str--;
+    if ('A' > current_str[0] || current_str[0] > 'P'){
+        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
+        return INCORRECT_REGISTR;
+    }
+
+    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
+    assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
+
+    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
+    return NO_MISTAKE_ASM;
+}
+
+static assembler_err_t pushm_popm(int cmd, assembler* assembl){
+    size_t number_of_str_in_txt_file = assembl->asm_pc;
+    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
+
+    assembl->bytecode[index_of_bytecode_array] = cmd;
+    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
+
+    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
+
+    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
+
+    current_str = strchr(current_str, 'X');
+    if(!current_str){
+        fprintf(stderr, "Incorrect registr");
+        return INCORRECT_REGISTR;
+    }
+    current_str--;
+    if ('A' > current_str[0] || current_str[0] > 'P'){
+        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
         return INCORRECT_REGISTR;
     }
 

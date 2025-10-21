@@ -116,7 +116,7 @@ stack_err_bytes do_processor_comands(processor* intel){
         case VLT:   return processor_verify(intel);
         default:
             fprintf(stderr, "INCORRECT CMD CODE");
-            fprintf(stderr, "%d\n", intel->ic);
+            fprintf(stderr, "ic with incorrect cmd code %d\n", intel->ic);
             res = res | INCORR_COMAND;
             return res;
         }
