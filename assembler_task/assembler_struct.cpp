@@ -33,12 +33,7 @@ assembler asm_init(const char* instructions_file){
         free_asm(&assembl);
         return {};
     }
-
-    if (parser(&assembl)){
-        free_asm(&assembl);
-        return {};
-    }
-    asm_dump(&assembl);
+    
     return assembl;
 }
 

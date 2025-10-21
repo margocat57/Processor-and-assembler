@@ -7,13 +7,13 @@ int main(){
     processor baikal = {};
     baikal = init("assembler_task/ass.bin");
     stack_err_bytes err_main = do_processor_comands(&baikal);
-    processor_dump(&baikal);
+    // processor_dump(&baikal);
 
     // доп таска
     // fill_video_ram(&baikal);
     // show_square(&baikal);
 
-    fill_video_ram2(&baikal);
+    // fill_video_ram2(&baikal);
 
     processor_free(&baikal);
     return 0;

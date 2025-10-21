@@ -157,11 +157,11 @@ void fill_video_ram2(processor* intel){
             index = (y * WIDTH1 + x);
             x_coord = fabs(x - centr_x);
             y_coord = fabs(y - centr_y);
-            if(x_coord*x_coord + y_coord*y_coord <= 30){
-                intel->VIDEO_RAM2[index] = 'O';
+            if(x_coord*x_coord + y_coord*y_coord <= R1*R1){
+                intel->VIDEO_RAM2[index] = '*';
             }
             else{
-                intel->VIDEO_RAM2[index] = '*';
+                intel->VIDEO_RAM2[index] = ' ';
             }
         }
     }
@@ -172,7 +172,7 @@ void fill_video_ram2(processor* intel){
             index = (y * WIDTH1 + x);
             x_coord = fabs(x - centr_x);
             y_coord = fabs(y - centr_y);
-            fprintf(stderr, "%c" ,intel->VIDEO_RAM2[index]);
+            fprintf(stderr, "%c " ,intel->VIDEO_RAM2[index]);
         }
         fprintf(stderr, "\n");
     }

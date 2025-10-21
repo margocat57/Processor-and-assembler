@@ -4,8 +4,13 @@
 #include "assembler_struct.h"
 
 int main(){
-    assembler asssembl = asm_init("assembler_task/calc_fact.txt");
-    put_buffer_to_file("assembler_task/ass.bin", &asssembl);
-    free_asm(&asssembl);
+    assembler assembl = asm_init("assembler_task/calc.txt");
+    if (parser(&assembl)){
+        free_asm(&assembl);
+        return 0;
+    }
+    asm_dump(&assembl);
+    put_buffer_to_file("assembler_task/ass.bin", &assembl);
+    free_asm(&assembl);
     return 0;
 }

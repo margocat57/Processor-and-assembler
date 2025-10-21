@@ -11,15 +11,19 @@
 
 #define CHECK_STACK_ERR(error) if (error != 0) { return error; } 
 
+// TODO крайне важно спросить про do{}while(0)
+
+// если делать указатели на функции - то хз как делать указатель на макрос
 //! jump_if_condition - Compares two numbers from the stack and if condition is true, jumps to the specified label
 #define JUMP_IF(intel, comp) \
-    do { \
+    do{ \
         int t1 = 0, t2 = 0; \
         CHECK_STACK_ERR(stack_pop((intel)->stack, &t1)); \
         CHECK_STACK_ERR(stack_pop((intel)->stack, &t2)); \
         jump_if_condition_sw(intel, t1 comp t2); \
-    } while(0);
+    }while(0)  \
 
+// может сделать более простое нечто - но вопрос как передавать что-то в функцию
 #define DO_OPERATION(intel, OP) \
     do{ \
         int stack_top_el = 0; \
@@ -30,7 +34,7 @@
         \
         int c = stack_el OP stack_top_el; \
         put_res_to_stack(intel, c); \
-    } while(0);
+    }while(0)  \
 
 #define LESS    <
 #define LESS_EQ <=
@@ -43,15 +47,6 @@
 #define SUB_OP  -
 #define MUL_OP  *
 #define DIV_OP  /
-
-#define DO_CASE(function) \
-    function; \
-    break; \
-
-#define DO_DRAW_CASE(function) \
-    function; \
-    intel->ic++; \
-    break; \
 
 static stack_err_bytes proc_push(processor* intel);
 
@@ -96,31 +91,32 @@ stack_err_bytes do_processor_comands(processor* intel){
     for(; intel->ic < intel->code.size;){
         switch (intel->code.comands[intel->ic])
         {
-        case PUSH:  DO_CASE(proc_push(intel))
-        case ADD:   DO_CASE(DO_OPERATION(intel, ADD_OP))
-        case SUB:   DO_CASE(DO_OPERATION(intel, SUB_OP)) 
-        case DIV:   DO_CASE(DO_OPERATION(intel, DIV_OP))
-        case MUL:   DO_CASE(DO_OPERATION(intel, MUL_OP))
-        case SQRT:  DO_CASE(sqrt(intel))
-        case OUT:   DO_CASE(out(intel, &result))
-        case IN:    DO_CASE(in(intel)) 
-        case POPR:  DO_CASE(popr(intel))
-        case PUSHR: DO_CASE(pushr(intel))
-        case JB:    DO_CASE(JUMP_IF(intel, LESS))
-        case JBE:   DO_CASE(JUMP_IF(intel, LESS_EQ))
-        case JA:    DO_CASE(JUMP_IF(intel, MORE)) 
-        case JAE:   DO_CASE(JUMP_IF(intel, MORE_EQ)) 
-        case JE:    DO_CASE(JUMP_IF(intel, EQ))
-        case JNE:   DO_CASE(JUMP_IF(intel, NOT_EQ))
-        case JMP:   DO_CASE(jump_if_condition_sw(intel, 1))
-        case CALL:  DO_CASE(call(intel)) 
-        case RET:   DO_CASE(ret(intel))
-        case PUSHM: DO_CASE(pushm(intel))
-        case POPM:  DO_CASE(popm(intel))
-        case DRAW:  DO_DRAW_CASE(ram_dump(intel))
+        case PUSH:  proc_push(intel);               break;
+        case ADD:   DO_OPERATION(intel, ADD_OP);    break;
+        case SUB:   DO_OPERATION(intel, SUB_OP);    break; 
+        case DIV:   DO_OPERATION(intel, DIV_OP);    break;
+        case MUL:   DO_OPERATION(intel, MUL_OP);    break;
+        case SQRT:  sqrt(intel);                    break;
+        case OUT:   out(intel, &result);            break;
+        case IN:    in(intel);                      break;
+        case POPR:  popr(intel);                    break;
+        case PUSHR: pushr(intel);                   break;
+        case JB:    JUMP_IF(intel, LESS);           break;
+        case JBE:   JUMP_IF(intel, LESS_EQ);        break;
+        case JA:    JUMP_IF(intel, MORE);           break;
+        case JAE:   JUMP_IF(intel, MORE_EQ);        break;
+        case JE:    JUMP_IF(intel, EQ);             break;
+        case JNE:   JUMP_IF(intel, NOT_EQ);         break;
+        case JMP:   jump_if_condition_sw(intel, 1); break;
+        case CALL:  call(intel);                    break;
+        case RET:   ret(intel);                     break;
+        case PUSHM: pushm(intel);                   break;
+        case POPM:  popm(intel);                    break;
+        case DRAW:  ram_dump(intel);                break;
         case VLT:   return processor_verify(intel);
         default:
             fprintf(stderr, "INCORRECT CMD CODE");
+            fprintf(stderr, "%d\n", intel->ic);
             res = res | INCORR_COMAND;
             return res;
         }

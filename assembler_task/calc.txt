@@ -1,12 +1,12 @@
 IN
 POPR RAX
-PUSHR RAX
-PUSH 0
-JE :1
 IN
 POPR RBX
 IN
 POPR RCX
+PUSHR RAX
+PUSH 0
+JE :1
 PUSHR RBX
 PUSHR RBX
 MUL
@@ -46,20 +46,44 @@ POPR RFX
 PUSHR REX
 PUSHR RFX 
 JE :3
+PUSH 2
+OUT
 PUSHR REX
 PUSHR RFX 
 OUT
 OUT
 VLT
-:1
-PUSH 0
-OUT
-VLT
-:3
-PUSHR REX
-OUT
-VLT
+:1  
+    PUSHR RBX
+    PUSH 0
+    JE :4
+    PUSH 1
+    OUT
+    PUSHR RCX
+    PUSH -1
+    MUL
+    PUSHR RBX
+    DIV
+    OUT
+    VLT
 :2
-PUSH -1
-OUT
-VLT
+    PUSH 0
+    OUT
+    VLT
+:3
+    PUSH 1
+    OUT
+    PUSHR REX
+    OUT
+    VLT
+:4
+    PUSHR RCX
+    PUSH 0
+    JE :5
+    PUSH 0
+    OUT 
+    VLT
+:5  
+    PUSH 8
+    OUT
+    VLT

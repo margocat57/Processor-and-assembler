@@ -6,16 +6,20 @@
 const int REGISTR_MAX_SIZE = 16;
 const int RAM_MAX_SIZE = 100;
 
+// for sfml - in process
 const int WIDTH = 100;
 const int HEIGHT = 100;
 const int PIXELSIZE = 5;
 const int VIDEO_RAM_MAX_SIZE = WIDTH * HEIGHT * 3;
 const int R = 50;
+// for sfml - in process
 
-const int WIDTH1 = 50;
-const int HEIGHT1 = 50;
+// for usual output square
+const int WIDTH1 = 25;
+const int HEIGHT1 = 25;
+const int R1 = 10;
 const int VIDEO_RAM2_MAX_SIZE = WIDTH1 * HEIGHT1;
-
+// for usual output square
 
 struct code_and_size{
     int* comands;
