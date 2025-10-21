@@ -70,3 +70,5 @@ clean:
 #clang++ -o processor processor_task/*.cpp stack_for_calcul/*.cpp && ./processor
 #rm -f processor processor_task/*.o stack_for_calcul/*.o *.o
 #rm -f assembler assembler_task/*.o
+
+#clang++ -o processor processor_task/*.cpp stack_for_calcul/*.cpp -I/usr/local/include -L/usr/local/lib -lsfml-graphics -lsfml-window -lsfml-system && ./processor

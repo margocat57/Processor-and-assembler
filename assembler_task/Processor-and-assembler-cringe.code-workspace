@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"queue": "cpp",
+			"stack": "cpp",
+			"random": "cpp"
+		}
+	}
+}

@@ -146,9 +146,10 @@ void processor_free(processor* intel){
 
 
 
-/*
+
 
 // Additional task - square r = 50
+/*
 void fill_video_ram(processor* intel){
     if(!intel){
         fprintf(stderr, "Pointer to processor is NULL - can't work");
