@@ -13,6 +13,8 @@ int main(){
     // fill_video_ram(&baikal);
     // show_square(&baikal);
 
+    fill_video_ram2(&baikal);
+
     processor_free(&baikal);
     return 0;
 }

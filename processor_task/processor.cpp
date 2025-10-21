@@ -141,6 +141,43 @@ void processor_free(processor* intel){
     }
 }
 
+void fill_video_ram2(processor* intel){
+    if(!intel){
+        fprintf(stderr, "Pointer to processor is NULL - can't work");
+        return;
+    }
+    int index = 0;
+    double x_coord = 0;
+    double y_coord = 0;
+    int centr_x = WIDTH1 / 2;
+    int centr_y = HEIGHT1 / 2;
+
+    for(int y = 0; y < HEIGHT1; y++){
+        for(int x = 0; x < WIDTH1; x++){
+            index = (y * WIDTH1 + x);
+            x_coord = fabs(x - centr_x);
+            y_coord = fabs(y - centr_y);
+            if(x_coord*x_coord + y_coord*y_coord <= 30){
+                intel->VIDEO_RAM2[index] = 'O';
+            }
+            else{
+                intel->VIDEO_RAM2[index] = '*';
+            }
+        }
+    }
+
+
+    for(int y = 0; y < HEIGHT1; y++){
+        for(int x = 0; x < WIDTH1; x++){
+            index = (y * WIDTH1 + x);
+            x_coord = fabs(x - centr_x);
+            y_coord = fabs(y - centr_y);
+            fprintf(stderr, "%c" ,intel->VIDEO_RAM2[index]);
+        }
+        fprintf(stderr, "\n");
+    }
+}
+
 
 
 
