@@ -1,7 +1,9 @@
 #ifndef CALCUL_H
 #define CALCUL_H
+#include "../stack_for_calcul/stack_func.h"
 #include "../assembler_task/parsing_str.h"
 #include "../stack_for_calcul/stack.h"
+#include "processor.h"
 #include "parse_asm_from_file.h"
 
 //! @brief Doing processor instructions 

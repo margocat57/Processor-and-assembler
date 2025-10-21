@@ -9,54 +9,19 @@
 #include "../stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 
-#define CHECK_STACK_ERR(error) if (error != 0) { return error; } 
+#define CHECK_STACK_ERR(error) if (error != 0) { return error; }
 
-// TODO крайне важно спросить про do{}while(0)
+static stack_err_bytes jump_with_condition(processor* intel);
 
-// если делать указатели на функции - то хз как делать указатель на макрос
-//! jump_if_condition - Compares two numbers from the stack and if condition is true, jumps to the specified label
-#define JUMP_IF(intel, comp) \
-    do{ \
-        int t1 = 0, t2 = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &t1)); \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &t2)); \
-        jump_if_condition_sw(intel, t1 comp t2); \
-    }while(0)  \
-
-// может сделать более простое нечто - но вопрос как передавать что-то в функцию
-#define DO_OPERATION(intel, OP) \
-    do{ \
-        int stack_top_el = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_top_el)); \
-        \
-        int stack_el = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_el)); \
-        \
-        int c = stack_el OP stack_top_el; \
-        put_res_to_stack(intel, c); \
-    }while(0)  \
-
-#define LESS    <
-#define LESS_EQ <=
-#define MORE    >
-#define MORE_EQ >=
-#define EQ      ==
-#define NOT_EQ  !=
-
-#define ADD_OP  +
-#define SUB_OP  -
-#define MUL_OP  *
-#define DIV_OP  /
+static stack_err_bytes do_arithmetic_op(processor* intel);
 
 static stack_err_bytes proc_push(processor* intel);
 
-static stack_err_bytes put_res_to_stack(processor* intel, int res);
-
 static stack_err_bytes sqrt(processor* intel);
 
-static stack_err_bytes jump_if_condition_sw(processor*intel, bool condition);
+static stack_err_bytes jmp(processor*intel);
 
-static stack_err_bytes out(processor* intel, int* result);
+static stack_err_bytes out(processor* intel);
 
 //! in - Reads input from keyboard and pushes it in the stack 
 static stack_err_bytes in(processor* intel);
@@ -77,6 +42,31 @@ static stack_err_bytes call(processor* intel);
 //! ret - Takes the address of the last instruction from the call stack and jumps to it
 static stack_err_bytes ret(processor* intel);
 
+static stack_err_bytes(*functions[AMNT_CMD])(processor*) ={
+    [PUSH]  =  proc_push,
+    [ADD]   =  do_arithmetic_op,
+    [SUB]   =  do_arithmetic_op,
+    [DIV]   =  do_arithmetic_op,
+    [MUL]   =  do_arithmetic_op,
+    [SQRT]  =  sqrt,
+    [OUT]   =  out,
+    [IN]    =  in,
+    [POPR]  =  popr,
+    [PUSHR] =  pushr,
+    [JB]    =  jump_with_condition,
+    [JBE]   =  jump_with_condition,
+    [JA]    =  jump_with_condition,
+    [JAE]   =  jump_with_condition,
+    [JE]    =  jump_with_condition,
+    [JNE]   =  jump_with_condition,
+    [JMP]   =  jmp,
+    [CALL]  =  call,
+    [RET]   =  ret,
+    [PUSHM] =  pushm,
+    [POPM]  =  popm,
+    [DRAW]  =  ram_dump,
+};
+
 stack_err_bytes do_processor_comands(processor* intel){
     stack_err_bytes res = NO_MISTAKE;
     res = processor_verify(intel);
@@ -84,40 +74,22 @@ stack_err_bytes do_processor_comands(processor* intel){
         return res;
     }
 
-    int result = 0;
+    int bytecode_elem = 0;
     // char ch = 'o'; // for pause debug
     // processor_dump(intel);
 
     for(; intel->ic < intel->code.size;){
-        switch (intel->code.comands[intel->ic])
-        {
-        case PUSH:  proc_push(intel);               break;
-        case ADD:   DO_OPERATION(intel, ADD_OP);    break;
-        case SUB:   DO_OPERATION(intel, SUB_OP);    break; 
-        case DIV:   DO_OPERATION(intel, DIV_OP);    break;
-        case MUL:   DO_OPERATION(intel, MUL_OP);    break;
-        case SQRT:  sqrt(intel);                    break;
-        case OUT:   out(intel, &result);            break;
-        case IN:    in(intel);                      break;
-        case POPR:  popr(intel);                    break;
-        case PUSHR: pushr(intel);                   break;
-        case JB:    JUMP_IF(intel, LESS);           break;
-        case JBE:   JUMP_IF(intel, LESS_EQ);        break;
-        case JA:    JUMP_IF(intel, MORE);           break;
-        case JAE:   JUMP_IF(intel, MORE_EQ);        break;
-        case JE:    JUMP_IF(intel, EQ);             break;
-        case JNE:   JUMP_IF(intel, NOT_EQ);         break;
-        case JMP:   jump_if_condition_sw(intel, 1); break;
-        case CALL:  call(intel);                    break;
-        case RET:   ret(intel);                     break;
-        case PUSHM: pushm(intel);                   break;
-        case POPM:  popm(intel);                    break;
-        case DRAW:  ram_dump(intel);                break;
-        case VLT:   return processor_verify(intel);
-        default:
-            fprintf(stderr, "INCORRECT CMD CODE");
-            fprintf(stderr, "ic with incorrect cmd code %d\n", intel->ic);
-            res = res | INCORR_COMAND;
+        bytecode_elem = intel->code.comands[intel->ic];
+        if(bytecode_elem == VLT){
+            res = processor_verify(intel);
+            return res;
+        }
+        if (bytecode_elem >= AMNT_CMD || !functions[bytecode_elem]){
+            fprintf(stderr, "INCORRECT COMAND");
+            return INCORR_COMAND;
+        }
+        res = functions[bytecode_elem](intel);
+        if(res){
             return res;
         }
         // begin DEBUG code
@@ -197,16 +169,10 @@ static stack_err_bytes in(processor* intel){
     return NO_MISTAKE;
 }
 
-static stack_err_bytes out(processor* intel, int* result){
-    CHECK_STACK_ERR(stack_pop(intel->stack, result));
-    printf("result = %d\n", *result);
+static stack_err_bytes out(processor* intel){
+    CHECK_STACK_ERR(stack_pop(intel->stack, &intel->result));
+    printf("result = %d\n", intel->result);
     intel->ic++;
-    return NO_MISTAKE;
-}
-
-static stack_err_bytes put_res_to_stack(processor* intel, int res){
-    CHECK_STACK_ERR(stack_push((intel)->stack, &res));
-    intel->ic++; 
     return NO_MISTAKE;
 }
 
@@ -246,7 +212,53 @@ static stack_err_bytes ret(processor* intel){
 }
 
 
-static stack_err_bytes jump_if_condition_sw(processor* intel, bool condition){
+static stack_err_bytes jmp(processor* intel){
+    intel -> ic = (size_t)intel->code.comands[intel -> ic + 1];
+    return NO_MISTAKE;
+}
+
+static stack_err_bytes do_arithmetic_op(processor* intel){
+    int stack_top_el = 0; 
+    CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_top_el)); 
+
+    int stack_el = 0; 
+    CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_el)); 
+
+    int res = 0;
+    switch(intel->code.comands[intel->ic]){
+        case ADD: res = stack_el + stack_top_el; break;
+        case SUB: res = stack_el - stack_top_el; break;
+        case MUL: res = stack_el * stack_top_el; break;
+        case DIV: if (stack_top_el == 0){
+            fprintf(stderr, "ZERO DIVISION - INCORRECT");
+            return ZERO_DIV;
+        }
+        res = stack_el / stack_top_el; break;
+        default: return INCORR_COMAND;
+    }
+
+    CHECK_STACK_ERR(stack_push((intel)->stack, &res));
+    intel->ic++; 
+    return NO_MISTAKE;
+}
+
+static stack_err_bytes jump_with_condition(processor* intel){
+    int t1 = 0, t2 = 0; 
+    CHECK_STACK_ERR(stack_pop((intel)->stack, &t1)); 
+    CHECK_STACK_ERR(stack_pop((intel)->stack, &t2)); 
+
+    bool condition = false;
+
+    switch(intel->code.comands[intel->ic]){
+        case JA:  condition = t1 > t2;  break;
+        case JAE: condition = t1 >= t2; break;
+        case JB:  condition = t1 < t2;  break;
+        case JBE: condition = t1 <= t2; break;
+        case JE:  condition = t1 == t2; break;
+        case JNE: condition = t1 != t2; break;
+        default: return INCORR_COMAND;
+    }
+
     if(condition){
         intel -> ic = (size_t)intel->code.comands[intel -> ic + 1];
         return NO_MISTAKE;

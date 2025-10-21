@@ -36,6 +36,7 @@ struct processor{
     int ram_counter;
     unsigned int VIDEO_RAM[VIDEO_RAM_MAX_SIZE];
     unsigned char VIDEO_RAM2[VIDEO_RAM2_MAX_SIZE];
+    int result;
 };
 
 struct res_and_err{
@@ -65,7 +66,7 @@ void processor_dump(processor* intel);
 
 void bytecode_dump(processor* intel);
 
-void ram_dump(processor* intel);
+stack_err_bytes ram_dump(processor* intel);
 
 void reg_dump(processor* intel);
 

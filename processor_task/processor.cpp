@@ -68,7 +68,7 @@ void reg_dump(processor* intel){
     }
 }
 
-void ram_dump(processor* intel){
+stack_err_bytes ram_dump(processor* intel){
     printf_to_log_file(BLUE "\nRAM max size %d\n" COLOR_RESET, RAM_MAX_SIZE);
     for(size_t idx_ram = 0; idx_ram < RAM_MAX_SIZE; idx_ram++){
         if (idx_ram % 2 == 0) {
@@ -82,6 +82,7 @@ void ram_dump(processor* intel){
             printf_to_log_file("\n");
         }
     }
+    return NO_MISTAKE;
 }
 
 void processor_dump(processor* intel){
