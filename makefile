@@ -53,7 +53,7 @@ processor_task/do_instructions.o: processor_task/do_instructions.cpp
 #%.o: %.cpp
 #	$(COMP) -c $< -o $@ $(CFLAGS_WITH_DEBUG)
 
-assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o
+assembler: assembler_task/main_assemb.o assembler_task/file_work.o assembler_task/parsing_str.o assembler_task/assembler_struct.o assembler_task/metki.o stack_for_calcul/hash.o
 	$(COMP) -o $@ $^
 
 processor: processor_task/main_proc.o processor_task/parse_asm_from_file.o processor_task/do_instructions.o stack_for_calcul/hash.o stack_for_calcul/log.o stack_for_calcul/my_assert.o stack_for_calcul/stack_func.o processor_task/processor.o

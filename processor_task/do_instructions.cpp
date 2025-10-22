@@ -42,7 +42,8 @@ static stack_err_bytes call(processor* intel);
 //! ret - Takes the address of the last instruction from the call stack and jumps to it
 static stack_err_bytes ret(processor* intel);
 
-static stack_err_bytes(*functions[AMNT_CMD])(processor*) ={
+// а здесь ругается что такой способ объявления массива устарел - хотя имхо довольно таки удобно, как исправить этот момент
+static stack_err_bytes(*functions[AMNT_CMD])(processor*) = {
     [PUSH]  =  proc_push,
     [ADD]   =  do_arithmetic_op,
     [SUB]   =  do_arithmetic_op,

@@ -3,8 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 #include "parsing_str.h"
+#include "../stack_for_calcul/hash.h"
+#include "cmd_info.h"
 
-// TODO добавить комментарии
+static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash);
 
 //! @brief Dispatches command parsing to appropriate handler based on command type
 //!
@@ -21,48 +23,6 @@
 //! 6. Returns INCORRECT_CMD for unknown command types
 static assembler_err_t parse_cmnds(assembler* assembl);
 
-//! @brief Processes register-based PUSH/POP operations
-//!
-//! For register/ram operations:
-//! - Writes command bytecode to array and listing
-//! - Extracts register name from instruction 
-//! - Validates register letter is in range of max number of registers
-//! - Returns error if register is outside valid range
-//! - Converts register letter to numeric index
-//! - Writes register index to NEXT position in bytecode (pc + 1)
-static assembler_err_t pushrm_poprm(int cmd, assembler* assembl);
-
-//! @brief Processes jump commands with label targets
-//!
-//! For conditional/unconditional jumps:
-//! - Writes jump command bytecode to bytecode array  
-//! - Stores command in listing structure
-//! - Extracts label number from instruction (text after colon)
-//! - Looks up the target address from  metki array
-//! - Writes the resolved address to NEXT position in bytecode (pc + 1)
-//! - Stores both command and target address in listing
-static void func_with_metka(int cmd, assembler* assembl);
-
-//! @brief Processes PUSH commands with immediate numeric values
-//!
-//! For PUSH commands with direct values:
-//! - Writes the PUSH command bytecode to bytecode array
-//! - Stores the command in listing structure
-//! - Extracts numeric value from instruction string (after command name + space)
-//! - Writes the numeric argument to the next position in bytecode array (pc + 1)
-//! - Stores both command and argument in listing array
-static void push(int cmd, assembler* assembl);
-
-//! @brief Processes simple commands without arguments (e.g., ADD, SUB, MUL)
-//! 
-//! For commands that don't take any arguments:
-//! - Writes the command bytecode to the main bytecode array
-//! - Stores the same bytecode in the listing structure for debugging
-//! - Sets num_of_args to 0 in the listing array
-static void other(int cmd, assembler* assembl);
-
-static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx);
-
 static char* skip_space(char* current_str){
     if(!current_str){
         fprintf(stderr, "Can't work - NULL current_str ptr");
@@ -74,6 +34,16 @@ static char* skip_space(char* current_str){
     return str_without_space;
 }
 
+static void create_cmd_hash(){
+    for(int i = 0; i < AMNT_CMD; i++){
+        if(!COMANDS[i].name_of_comand){
+            continue;
+        }
+        COMANDS[i].hash = create_djb2_hash(COMANDS[i].name_of_comand, COMANDS[i].size);
+    }
+}
+
+// а здесь не громоздко что каждый раз считается хэш
 listing* fill_listing_struct(assembler* assembl){
     if(!assembl){
         fprintf(stderr, "Can't work - NULL assembler ptr");
@@ -86,26 +56,32 @@ listing* fill_listing_struct(assembler* assembl){
         return NULL;
     }
     long long int no_cmd = -1;
+    size_t length = 0;
+    size_t cmd_hash = 0;
+    create_cmd_hash();
 
     for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
         for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
             if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
                 continue;
             }
+
             assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
-            if(COMANDS[cmd].num_of_params >= 1 &&
-                !strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx);
+            length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
+            cmd_hash = create_djb2_hash(assembl->ptr_array[idx], length);
+
+            if(COMANDS[cmd].num_of_params >= 1 && cmd_hash == COMANDS[cmd].hash){
+                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
                 (assembl->asm_bytecode_size) += 2;
                 break;
             }
-            else if(!strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
-                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx);
+            else if(cmd_hash == COMANDS[cmd].hash){
+                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
                 (assembl->asm_bytecode_size)++;
                 break;
             }
             else if(!strncmp(assembl->ptr_array[idx], ":", 1)){
-                put_params(info, assembl, no_cmd, idx);
+                put_params(info, assembl, no_cmd, idx, cmd_hash);
                 break;
             }
         }
@@ -113,9 +89,10 @@ listing* fill_listing_struct(assembler* assembl){
     return info;
 }
 
-static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx){
+static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash){
     (info + idx)->instruction = assembl->ptr_array[idx];
     (info + idx)->pc = pc_in_bytecode_arr;
+    (info + idx)->hash = hash;
 }
 
 assembler_err_t parser(assembler* assembl){
@@ -152,6 +129,7 @@ assembler_err_t parser(assembler* assembl){
 }
 
 static assembler_err_t parse_cmnds(assembler* assembl){
+    assembler_err_t err = NO_MISTAKE_ASM;
     if(!assembl){
         fprintf(stderr, "Can't work - NULL assembler ptr");
         return NULL_PTR;
@@ -161,25 +139,20 @@ static assembler_err_t parse_cmnds(assembler* assembl){
     for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
 
-        if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || assembl->info[assembl->asm_pc].pc == -1 
-        || strncmp(assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].name_of_comand, COMANDS[cmd].size) ){
+        if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || assembl->info[assembl->asm_pc].pc == -1 ||
+        assembl->info[assembl->asm_pc].hash != COMANDS[cmd].hash){
             continue;
         }
-
-        // вот здесь по хорошему тоже нужны указатели на функции - как сделать хз - подумаю
-        switch(COMANDS[cmd].elem_type){
-            case PUSHRM_POPRM:   return pushrm_poprm(cmd, assembl);
-            case JUMP_WITH_COND: func_with_metka(cmd, assembl); break;
-            case PUSH_TYPE:      push(cmd, assembl);            break;
-            case OTHER:          other(cmd, assembl);           break;
-            default:             return INCORRECT_CMD;
+        err = COMANDS[cmd].function(cmd, assembl);
+        if(err){
+            return err;
         }
     }
 
     return NO_MISTAKE_ASM;
 }
 
-static void other(int cmd, assembler* assembl){
+assembler_err_t other(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
@@ -187,9 +160,10 @@ static void other(int cmd, assembler* assembl){
     assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
 
     assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
+    return NO_MISTAKE_ASM;
 }
 
-static void push(int cmd, assembler* assembl){
+assembler_err_t push(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
@@ -203,9 +177,11 @@ static void push(int cmd, assembler* assembl){
 
     assembl->bytecode[index_of_bytecode_array] = atoi(current_str);
     assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
+
+    return NO_MISTAKE_ASM;
 }
 
-static void func_with_metka(int cmd, assembler* assembl){
+assembler_err_t func_with_metka(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
@@ -221,10 +197,12 @@ static void func_with_metka(int cmd, assembler* assembl){
     index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
     assembl->bytecode[index_of_bytecode_array] = assembl->metki_asm.metki_arr[atoi(current_str)];
     assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
+
+    return NO_MISTAKE_ASM;
 }
 
 // возможно стоит сделать 
-static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
+assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
@@ -249,7 +227,7 @@ static assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
 }
 
 // добавить 2 функции с проверкой допустимости регистров
-static assembler_err_t pushr_popr(int cmd, assembler* assembl){
+assembler_err_t pushr_popr(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 
@@ -284,7 +262,7 @@ static assembler_err_t pushr_popr(int cmd, assembler* assembl){
     return NO_MISTAKE_ASM;
 }
 
-static assembler_err_t pushm_popm(int cmd, assembler* assembl){
+assembler_err_t pushm_popm(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
 

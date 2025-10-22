@@ -14,6 +14,7 @@ struct file_in_array{
 struct listing{
     long long int pc;           
     char* instruction;
+    size_t hash;
     int bytecode;
     int num_of_args;
     int args;

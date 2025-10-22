@@ -36,51 +36,6 @@ enum CODE_CMD{
     POPR  = 42,
 };
 
-//! needed to know which function needed to be called to parse this parameter
-enum TYPE_OF_ELEM{
-    PUSHRM_POPRM,   //! call function to parse pushr/popr/pushm/popm commands
-    JUMP_WITH_COND, //! call function to parse jump or call commands
-    PUSH_TYPE,      //! call function to parse push commands
-    OTHER           //! call function to parse other commands
-};
-
-struct comands_and_size{
-    const char* name_of_comand;
-    size_t size;
-    CODE_CMD bytecode;
-    int num_of_params;
-    TYPE_OF_ELEM elem_type;
-};
-
-const comands_and_size COMANDS[]={
-    {},                                         //0
-    {"PUSH", 4,  PUSH,   1, PUSH_TYPE},         //1
-    {"ADD" ,  3, ADD,    0, OTHER},             //2
-    {"SUB" ,  3, SUB,    0, OTHER},             //3
-    {"DIV" ,  3, DIV,    0, OTHER},             //4
-    {"MUL" ,  3, MUL,    0, OTHER},             //5
-    {"OUT" ,  3, OUT,    0, OTHER},             //6
-    {"VLT" ,  3, VLT,    0, OTHER},             //7
-    {"SQRT" , 4, SQRT,   0, OTHER},             //8
-    {"IN"   , 2, IN,     0, OTHER},             //9
-    {"JB"   , 2, JB,     1, JUMP_WITH_COND},    //10
-    {"JBE"  , 3, JBE,    1, JUMP_WITH_COND},    //11
-    {"JA"   , 2, JA,     1, JUMP_WITH_COND},    //12
-    {"JAE"  , 3, JAE,    1, JUMP_WITH_COND},    //13
-    {"JE"   , 2, JE,     1, JUMP_WITH_COND},    //14
-    {"JNE"  , 3, JNE,    1, JUMP_WITH_COND},    //15
-    {"JMP"  , 3, JMP,    1, JUMP_WITH_COND},    //16
-    {"CALL" , 4, CALL,   1, JUMP_WITH_COND},    //17
-    {"RET"  , 3, RET,    0, OTHER},             //18
-    {"PUSHM", 5, PUSHM,  1, PUSHRM_POPRM},      //19
-    {"POPM",  4, POPM,  1,  PUSHRM_POPRM},      //20
-    {"DRAW",  4, DRAW,  0,  OTHER},             //21
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, //22 - 32
-    {"PUSHR", 5, PUSHR, 1,  PUSHRM_POPRM},      //33
-    {}, {}, {}, {}, {}, {}, {}, {},             //34 - 41
-    {"POPR",  4, POPR,  1,  PUSHRM_POPRM},      //42
-};
-
 //! @brief Second pass: Generates actual bytecode from parsed instructions and labels
 //!
 //! Operation:
@@ -117,5 +72,51 @@ assembler_err_t parser(assembler* assembl);
 //! @note This is the first parsing pass - determines PC positions before actual code generation
 //! @warning Returns NULL if memory allocation fails or input validation fails
 listing* fill_listing_struct(assembler* assembl);
+
+
+//! @brief Processes register-based PUSH/POP operations
+//!
+//! For register/ram operations:
+//! - Writes command bytecode to array and listing
+//! - Extracts register name from instruction 
+//! - Validates register letter is in range of max number of registers
+//! - Returns error if register is outside valid range
+//! - Converts register letter to numeric index
+//! - Writes register index to NEXT position in bytecode (pc + 1)
+
+assembler_err_t pushr_popr(int cmd, assembler* assembl);
+
+assembler_err_t pushm_popm(int cmd, assembler* assembl);
+
+//! @brief Processes jump commands with label targets
+//!
+//! For conditional/unconditional jumps:
+//! - Writes jump command bytecode to bytecode array  
+//! - Stores command in listing structure
+//! - Extracts label number from instruction (text after colon)
+//! - Looks up the target address from  metki array
+//! - Writes the resolved address to NEXT position in bytecode (pc + 1)
+//! - Stores both command and target address in listing
+assembler_err_t func_with_metka(int cmd, assembler* assembl);
+
+//! @brief Processes PUSH commands with immediate numeric values
+//!
+//! For PUSH commands with direct values:
+//! - Writes the PUSH command bytecode to bytecode array
+//! - Stores the command in listing structure
+//! - Extracts numeric value from instruction string (after command name + space)
+//! - Writes the numeric argument to the next position in bytecode array (pc + 1)
+//! - Stores both command and argument in listing array
+assembler_err_t push(int cmd, assembler* assembl);
+
+//! @brief Processes simple commands without arguments (e.g., ADD, SUB, MUL)
+//! 
+//! For commands that don't take any arguments:
+//! - Writes the command bytecode to the main bytecode array
+//! - Stores the same bytecode in the listing structure for debugging
+//! - Sets num_of_args to 0 in the listing array
+assembler_err_t other(int cmd, assembler* assembl);
+
+
 
 #endif //PARSING_STR_H
