@@ -61,14 +61,14 @@ listing* fill_listing_struct(assembler* assembl){
     create_cmd_hash();
 
     for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
+        assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
+        length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
+        cmd_hash = create_djb2_hash(assembl->ptr_array[idx], length);
+
         for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
             if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
                 continue;
             }
-
-            assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
-            length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
-            cmd_hash = create_djb2_hash(assembl->ptr_array[idx], length);
 
             if(COMANDS[cmd].num_of_params >= 1 && cmd_hash == COMANDS[cmd].hash){
                 put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
@@ -198,31 +198,6 @@ assembler_err_t func_with_metka(int cmd, assembler* assembl){
     assembl->bytecode[index_of_bytecode_array] = assembl->metki_asm.metki_arr[atoi(current_str)];
     assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
 
-    return NO_MISTAKE_ASM;
-}
-
-// возможно стоит сделать 
-assembler_err_t pushrm_poprm(int cmd, assembler* assembl){
-    size_t number_of_str_in_txt_file = assembl->asm_pc;
-    long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;
-
-    assembl->bytecode[index_of_bytecode_array] = cmd;
-    assembl->info[assembl->asm_pc].bytecode = assembl->bytecode[index_of_bytecode_array];
-
-    assembl->info[assembl->asm_pc].num_of_args = COMANDS[cmd].num_of_params;
-
-    char* current_str = assembl->info[assembl->asm_pc].instruction + COMANDS[cmd].size + 1;
-
-    current_str = strchr(current_str, 'X') - 1;
-    if ('A' > current_str[0] || current_str[0] > 'P'){
-        fprintf(stderr, "Incorrect registr R%cX", current_str[0]);
-        return INCORRECT_REGISTR;
-    }
-
-    index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc + 1;
-    assembl->bytecode[index_of_bytecode_array] = current_str[0] - 'A';
-
-    assembl->info[assembl->asm_pc].args = assembl->bytecode[index_of_bytecode_array];
     return NO_MISTAKE_ASM;
 }
 

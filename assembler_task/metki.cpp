@@ -22,6 +22,12 @@ metki metki_init(assembler* assembl){
         return mtk;
     }
 
+    if(!assembl->info){
+        fprintf(stderr, "Can't work - NULL assembler info ptr");
+        return mtk;
+    }
+
+
     int* metki_arr = (int*)calloc(sizeof(int), MAX_NUMBER_OF_METKI); 
     if(!metki_arr){
         fprintf(stderr, "Can't allocate memory for metki array");
@@ -32,19 +38,21 @@ metki metki_init(assembler* assembl){
     int metka = 0;
 
     for(size_t idx = 0; idx < assembl->file_in_arr.amount_str; idx++){
-        if(assembl->info[idx].pc == -1){
-            current_str = strchr(assembl->info[idx].instruction, ':') + 1;
-            metka = atoi(current_str);
-            if(metka > MAX_NUMBER_OF_METKI){
-                fprintf(stderr, "Try to set metka out of array");
-                break;
-            }
-            if(idx + 1 < assembl->file_in_arr.amount_str){
-                if(metka < MAX_NUMBER_OF_METKI)
-                    metki_arr[metka] = (int)assembl->info[idx + 1].pc; 
-                else 
-                    metki_arr[0] = (int)assembl->info[idx + 1].pc; 
-            }
+        if(assembl->info[idx].pc != -1){
+            continue;
+        }
+
+        current_str = strchr(assembl->info[idx].instruction, ':') + 1;
+        metka = atoi(current_str);
+        if(metka > MAX_NUMBER_OF_METKI){
+            fprintf(stderr, "Try to set metka out of array");
+            break;
+        }
+        if(idx + 1 < assembl->file_in_arr.amount_str){
+            if(metka < MAX_NUMBER_OF_METKI)
+                metki_arr[metka] = (int)assembl->info[idx + 1].pc; 
+            else 
+                metki_arr[0] = (int)assembl->info[idx + 1].pc; 
         }
     }
     mtk.metki_arr = metki_arr;
