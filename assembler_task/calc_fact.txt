@@ -1,25 +1,42 @@
-IN
-POPR RAX
-PUSH 0
-PUSHR RAX
-JE :1
-PUSH 1
-PUSHR RAX
-JE :1
-PUSH 1
-POPR RBX
-PUSHR RBX
-POPR RCX
-PUSHR RBX
-CALL :2
-PUSHR RCX
-OUT
-VLT
+CALL :3
+:3
+    CALL :4 ; input
+    CALL :5 ; check that n is not null
+    CALL :6 ; check that n is not 1
+    CALL :7 ; put 1 to registr with result
+    CALL :2 ; find factorial
+    CALL :8 ; output
+
+:4
+    IN
+    POPR RAX
+    RET
+:5
+    PUSH 0
+    PUSHR RAX
+    JE :1
+    RET
+:6
+    PUSH 1
+    PUSHR RAX
+    JE :1
+    RET
+:7
+    PUSH 1
+    POPR RBX
+    PUSHR RBX
+    POPR RCX
+    RET
+:8
+    PUSHR RCX
+    OUT
+    VLT
 :1
     PUSH 1
     OUT
     VLT
-:2
+:2  
+    PUSHR RBX
     PUSHR RAX
     JBE :3
     PUSHR RBX
@@ -30,7 +47,6 @@ VLT
     PUSHR RCX
     MUL
     POPR RCX
-    PUSHR RBX
     CALL :2
 :3  
     RET

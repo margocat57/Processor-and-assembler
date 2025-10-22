@@ -1,65 +1,23 @@
-
-9:
-    call 8 ; input 
-    call 9 ; solve quadratic
-    call 5 ; output 
-ret
-
-IN
-POPR RAX
-IN
-POPR RBX
-IN
-POPR RCX
-PUSHR RAX
-PUSH 0
-JE :1
-PUSHR RBX
-PUSHR RBX
-MUL
-PUSH 4
-PUSHR RAX
-MUL
-PUSHR RCX
-MUL
-SUB
-POPR RDX
-PUSHR RDX
-PUSH 0
-JA :2
-PUSHR RDX
-SQRT
-POPR RDX
-PUSHR RBX
-PUSH -1
-MUL
-PUSHR RDX
-ADD
-PUSHR RAX
-PUSH 2
-MUL
-DIV 
-POPR REX
-PUSHR RBX
-PUSH -1
-MUL
-PUSHR RDX
-SUB
-PUSHR RAX
-PUSH 2
-MUL
-DIV
-POPR RFX
-PUSHR REX
-PUSHR RFX 
-JE :3
-PUSH 2
-OUT
-PUSHR REX
-PUSHR RFX 
-OUT
-OUT
-VLT
+CALL :11
+:11
+    CALL :6  ; input
+    CALL :7  ; check linear or const eq
+    CALL :8  ; find discriminant
+    CALL :9  ; solve square eq
+    CALL :10 ; output result
+:6
+    IN
+    POPR RAX
+    IN
+    POPR RBX
+    IN
+    POPR RCX
+    RET
+:7
+    PUSHR RAX
+    PUSH 0
+    JE :1
+    RET
 :1  
     PUSHR RBX
     PUSH 0
@@ -73,16 +31,6 @@ VLT
     DIV
     OUT
     VLT
-:2
-    PUSH 0
-    OUT
-    VLT
-:3
-    PUSH 1
-    OUT
-    PUSHR REX
-    OUT
-    VLT
 :4
     PUSHR RCX
     PUSH 0
@@ -92,6 +40,67 @@ VLT
     VLT
 :5  
     PUSH 8
+    OUT
+    VLT
+:8
+    PUSHR RBX
+    PUSHR RBX
+    MUL
+    PUSH 4
+    PUSHR RAX
+    MUL
+    PUSHR RCX
+    MUL
+    SUB
+    POPR RDX
+    PUSHR RDX
+    PUSH 0
+    JA :2
+    RET
+:2
+    PUSH 0
+    OUT
+    VLT
+:9
+    PUSHR RDX
+    SQRT
+    POPR RDX
+    PUSHR RBX
+    PUSH -1
+    MUL
+    PUSHR RDX
+    ADD
+    PUSHR RAX
+    PUSH 2
+    MUL
+    DIV 
+    POPR REX
+    PUSHR RBX
+    PUSH -1
+    MUL
+    PUSHR RDX
+    SUB
+    PUSHR RAX
+    PUSH 2
+    MUL
+    DIV
+    POPR RFX
+    RET
+:10 
+    PUSHR REX
+    PUSHR RFX 
+    JE :3
+    PUSH 2
+    OUT
+    PUSHR REX
+    PUSHR RFX 
+    OUT
+    OUT
+    VLT
+:3
+    PUSH 1
+    OUT
+    PUSHR REX
     OUT
     VLT
 
@@ -104,6 +113,3 @@ VLT
 ; Output: D - RDX
 ; Destroys: rex, rfx, [100]
 ;============================
-:6
-    ...
-ret

@@ -4,7 +4,7 @@
 
 struct assembler;
 
-const int MAX_NUMBER_OF_METKI = 10;
+const int MAX_NUMBER_OF_METKI = 20;
 
 struct metki{
     int* metki_arr;

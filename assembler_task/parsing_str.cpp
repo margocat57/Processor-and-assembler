@@ -6,9 +6,6 @@
 #include "../stack_for_calcul/hash.h"
 #include "../cmd_info.h"
 
-
-//хэш-необходимое но недостаточное условие - юзать strcmp
-
 static void put_params(instruction_info* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash);
 
 //! @brief Dispatches command parsing to appropriate handler based on command type
@@ -53,10 +50,6 @@ instruction_info* fill_listing_struct(assembler* assembl){
     size_t cmd_hash = 0;
 
     for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
-        if(strchr(assembl->ptr_array[idx], ':')){
-            put_params(info, assembl, no_cmd, idx, cmd_hash);
-            continue;
-        }
 
         assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
         length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
@@ -68,7 +61,7 @@ instruction_info* fill_listing_struct(assembler* assembl){
             }
 
             if(cmd_hash == COMANDS[cmd].hash){
-                if(strncmp(COMANDS[cmd].name_of_comand, assembl->ptr_array[idx], COMANDS[cmd].size)){
+                if(strncmp(assembl->ptr_array[idx], COMANDS[cmd].name_of_comand, COMANDS[cmd].size)){
                     continue;
                 }
                 put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
@@ -76,6 +69,11 @@ instruction_info* fill_listing_struct(assembler* assembl){
                 if(COMANDS[cmd].num_of_params >= 1){
                     (assembl->asm_bytecode_size)++;
                 }
+                break;
+            }
+
+            if(!strncmp(assembl->ptr_array[idx], ":", 1)){
+                put_params(info, assembl, no_cmd, idx, cmd_hash);
                 break;
             }
         }

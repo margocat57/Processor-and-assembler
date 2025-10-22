@@ -11,7 +11,6 @@ struct file_in_array{
     bool is_stat_err;           //!if there is miskate ar stat's working
 };
 
-// instruction - info rename
 struct instruction_info{
     long long int pc;           
     char* instruction; //TODO to const char

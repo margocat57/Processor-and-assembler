@@ -41,7 +41,6 @@ metki metki_init(assembler* assembl){
         if(assembl->info[idx].pc != -1){
             continue;
         }
-
         current_str = strchr(assembl->info[idx].instruction, ':') + 1;
         metka = atoi(current_str);
         if(metka > MAX_NUMBER_OF_METKI){

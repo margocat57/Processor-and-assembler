@@ -8,48 +8,18 @@
 
 #define CHECK_STACK_ERR(error) if (error != 0) { return error; }
 
-#define create_func_arithm_operations(operation, name) \
-    stack_err_bytes name(processor* intel) { \
-        int stack_top_el = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_top_el)); \
-        \
-        int stack_el = 0;  \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &stack_el)); \
-        \
-        int res = stack_el operation stack_top_el;    \
-        CHECK_STACK_ERR(stack_push((intel)->stack, &res)); \
-        intel->ic++; \
-        return NO_MISTAKE;\
-    }
-
-create_func_arithm_operations(+, add);
-create_func_arithm_operations(-, sub);
-create_func_arithm_operations(*, mul);
-create_func_arithm_operations(/, div);
-
-#define create_jmp_cond_func(cond, name_jmp) \
-    stack_err_bytes name_jmp(processor* intel) { \
-        int t1 = 0, t2 = 0; \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &t1)); \
-        CHECK_STACK_ERR(stack_pop((intel)->stack, &t2)); \
-        \
-        bool condition = t1 cond t2; \
-        if(condition){ \
-            intel -> ic = (size_t)intel->code.comands[intel -> ic + 1]; \
-            return NO_MISTAKE; \
-        } \
-        intel->ic++;  \
-        intel->ic++; \ 
-        return NO_MISTAKE; \
-    }
+stack_err_bytes add(processor* intel);
+stack_err_bytes sub(processor* intel);
+stack_err_bytes divide(processor* intel);
+stack_err_bytes mul(processor* intel);
+stack_err_bytes ja(processor* intel);
+stack_err_bytes jae(processor* intel);
+stack_err_bytes jb(processor* intel);
+stack_err_bytes jbe(processor* intel);
+stack_err_bytes je(processor* intel);
+stack_err_bytes jne(processor* intel);
 
 
-create_jmp_cond_func(>,  ja);
-create_jmp_cond_func(>=, jae);
-create_jmp_cond_func(<,  jb);
-create_jmp_cond_func(<=, jbe);
-create_jmp_cond_func(==, je);
-create_jmp_cond_func(!=, jne);
 
 
 //! @brief Doing processor instructions 

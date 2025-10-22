@@ -2,6 +2,7 @@
 #include "file_work.h"
 #include "parsing_str.h"
 #include "assembler_struct.h"
+#include "../stack_for_calcul/hash.h"
 
 int main(){
     assembler assembl = asm_init("assembler_task/calc_fact.txt");
