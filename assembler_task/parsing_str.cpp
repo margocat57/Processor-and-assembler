@@ -96,7 +96,7 @@ static void put_params(listing* info, assembler* assembl, long long int pc_in_by
 }
 
 assembler_err_t parser(assembler* assembl){
-    assembler_err_t err =NO_MISTAKE_ASM;
+    assembler_err_t err = NO_MISTAKE_ASM;
     if(!assembl){
         fprintf(stderr, "Can't work - NULL assembler ptr");
         return NULL_PTR;

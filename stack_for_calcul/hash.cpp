@@ -4,7 +4,7 @@
 #include "my_assert.h"
 #include "stack_func.h"
 
-size_t create_djb2_hash(char *data, size_t size){
+size_t create_djb2_hash(const char *data, size_t size){
     if (!data)
         return 1;
 

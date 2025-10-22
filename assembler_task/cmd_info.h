@@ -4,15 +4,14 @@
 
 
 struct comands_and_size{
-    char* name_of_comand;
+    const char* name_of_comand;
     size_t hash;
     size_t size;
     CODE_CMD bytecode;
     int num_of_params;
-    assembler_err_t(*function)(int cmd, assembler*);
+    assembler_err_t(*function)(int, assembler*);
 };
 
-// тут строковые литералы - как char*, для совместимости с функцией хэширования - но это не очень хорошо
 comands_and_size COMANDS[]={
     {},                                            //0
     {"PUSH",  0, 4, PUSH,   1, push},              //1

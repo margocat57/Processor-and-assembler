@@ -234,8 +234,8 @@ static void update_stack_data_hash(stack_t_t *stack)
     stack->djb2_stack = 0;
     stack->djb2_data = 0;
     size_t size = (size_t)(&stack->tail_canary - &stack->front_canary) + sizeof(stack->tail_canary);
-    stack->djb2_stack = create_djb2_hash((char *)stack, size);
-    stack->djb2_data = create_djb2_hash((char *)stack->data, stack->capacity + CANARY_ELEMS);
+    stack->djb2_stack = create_djb2_hash((const char*)stack, size);
+    stack->djb2_data = create_djb2_hash((const char*)stack->data, stack->capacity + CANARY_ELEMS);
 }
 
 stack_err_bytes stack_push(stack_t_t *stack, stack_elem_t *elem)
