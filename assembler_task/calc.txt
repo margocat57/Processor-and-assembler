@@ -1,3 +1,10 @@
+
+9:
+    call 8 ; input 
+    call 9 ; solve quadratic
+    call 5 ; output 
+ret
+
 IN
 POPR RAX
 IN
@@ -87,3 +94,16 @@ VLT
     PUSH 8
     OUT
     VLT
+
+
+;============================
+; Evaluate D
+; Input: a - rax,
+;        b - rbx,
+;        c - rcx
+; Output: D - RDX
+; Destroys: rex, rfx, [100]
+;============================
+:6
+    ...
+ret

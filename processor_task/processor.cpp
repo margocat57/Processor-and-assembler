@@ -142,6 +142,11 @@ void processor_free(processor* intel){
     }
 }
 
+// программа на ассемблере
+// push заполнять оперативку
+// выделенные адреса операвки - видеопамять
+// in радиус
+// DRAW - если 0 точка иначе решетка
 void fill_video_ram2(processor* intel){
     if(!intel){
         fprintf(stderr, "Pointer to processor is NULL - can't work");

@@ -11,9 +11,10 @@ struct file_in_array{
     bool is_stat_err;           //!if there is miskate ar stat's working
 };
 
-struct listing{
+// instruction - info rename
+struct instruction_info{
     long long int pc;           
-    char* instruction;
+    char* instruction; //TODO to const char
     size_t hash;
     int bytecode;
     int num_of_args;
@@ -27,7 +28,7 @@ struct assembler{
     struct metki metki_asm;           //! metki array
     size_t asm_bytecode_size;         //! bytecode size
     size_t asm_pc;                    //! pointer to instruction that is assembling
-    struct listing* info;             //! struct for more convenient work and asm dump: constaining pointer to command, instruction, command bytecode, num of args of command, args
+    struct instruction_info* info;    //! struct for more convenient work and asm dump: constaining pointer to command, instruction, command bytecode, num of args of command, args
 };
 
 enum assembler_err{

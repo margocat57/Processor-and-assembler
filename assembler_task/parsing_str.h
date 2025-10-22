@@ -71,7 +71,7 @@ assembler_err_t parser(assembler* assembl);
 //!
 //! @note This is the first parsing pass - determines PC positions before actual code generation
 //! @warning Returns NULL if memory allocation fails or input validation fails
-listing* fill_listing_struct(assembler* assembl);
+instruction_info* fill_listing_struct(assembler* assembl);
 
 
 //! @brief Processes register-based PUSH/POP operations

@@ -4,7 +4,7 @@
 #include "assembler_struct.h"
 
 int main(){
-    assembler assembl = asm_init("assembler_task/calc.txt");
+    assembler assembl = asm_init("assembler_task/calc_fact.txt");
     if (parser(&assembl)){
         free_asm(&assembl);
         return 0;

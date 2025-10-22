@@ -4,9 +4,12 @@
 #include <stdio.h>
 #include "parsing_str.h"
 #include "../stack_for_calcul/hash.h"
-#include "cmd_info.h"
+#include "../cmd_info.h"
 
-static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash);
+
+//хэш-необходимое но недостаточное условие - юзать strcmp
+
+static void put_params(instruction_info* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash);
 
 //! @brief Dispatches command parsing to appropriate handler based on command type
 //!
@@ -34,23 +37,13 @@ static char* skip_space(char* current_str){
     return str_without_space;
 }
 
-static void create_cmd_hash(){
-    for(int i = 0; i < AMNT_CMD; i++){
-        if(!COMANDS[i].name_of_comand){
-            continue;
-        }
-        COMANDS[i].hash = create_djb2_hash(COMANDS[i].name_of_comand, COMANDS[i].size);
-    }
-}
-
-// а здесь не громоздко что каждый раз считается хэш
-listing* fill_listing_struct(assembler* assembl){
+instruction_info* fill_listing_struct(assembler* assembl){
     if(!assembl){
         fprintf(stderr, "Can't work - NULL assembler ptr");
         return NULL;
     }
 
-    listing* info = (listing*)calloc(assembl->file_in_arr.amount_str, sizeof(listing));
+    instruction_info* info = (instruction_info*)calloc(assembl->file_in_arr.amount_str, sizeof(instruction_info));
     if(!info){
         fprintf(stderr, "Can't alloc memory for info arr");
         return NULL;
@@ -58,9 +51,13 @@ listing* fill_listing_struct(assembler* assembl){
     long long int no_cmd = -1;
     size_t length = 0;
     size_t cmd_hash = 0;
-    create_cmd_hash();
 
     for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
+        if(strchr(assembl->ptr_array[idx], ':')){
+            put_params(info, assembl, no_cmd, idx, cmd_hash);
+            continue;
+        }
+
         assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
         length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
         cmd_hash = create_djb2_hash(assembl->ptr_array[idx], length);
@@ -70,18 +67,15 @@ listing* fill_listing_struct(assembler* assembl){
                 continue;
             }
 
-            if(COMANDS[cmd].num_of_params >= 1 && cmd_hash == COMANDS[cmd].hash){
-                put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
-                (assembl->asm_bytecode_size) += 2;
-                break;
-            }
-            else if(cmd_hash == COMANDS[cmd].hash){
+            if(cmd_hash == COMANDS[cmd].hash){
+                if(strncmp(COMANDS[cmd].name_of_comand, assembl->ptr_array[idx], COMANDS[cmd].size)){
+                    continue;
+                }
                 put_params(info, assembl, (long long int)assembl->asm_bytecode_size, idx, cmd_hash);
                 (assembl->asm_bytecode_size)++;
-                break;
-            }
-            else if(!strncmp(assembl->ptr_array[idx], ":", 1)){
-                put_params(info, assembl, no_cmd, idx, cmd_hash);
+                if(COMANDS[cmd].num_of_params >= 1){
+                    (assembl->asm_bytecode_size)++;
+                }
                 break;
             }
         }
@@ -89,7 +83,7 @@ listing* fill_listing_struct(assembler* assembl){
     return info;
 }
 
-static void put_params(listing* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash){
+static void put_params(instruction_info* info, assembler* assembl, long long int pc_in_bytecode_arr, int idx, size_t hash){
     (info + idx)->instruction = assembl->ptr_array[idx];
     (info + idx)->pc = pc_in_bytecode_arr;
     (info + idx)->hash = hash;
@@ -137,13 +131,17 @@ static assembler_err_t parse_cmnds(assembler* assembl){
 
     size_t length = 0;
     for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
+        // а стоит здесь считать длину
         length = strcspn(assembl->info[assembl->asm_pc].instruction, " \t\n\r\f\v");
 
         if(!COMANDS[cmd].name_of_comand || length != COMANDS[cmd].size || assembl->info[assembl->asm_pc].pc == -1 ||
         assembl->info[assembl->asm_pc].hash != COMANDS[cmd].hash){
             continue;
         }
-        err = COMANDS[cmd].function(cmd, assembl);
+        if(strncmp(COMANDS[cmd].name_of_comand, assembl->info[assembl->asm_pc].instruction, COMANDS[cmd].size)){
+            continue;
+        }
+        err = COMANDS[cmd].function_asm(cmd, assembl);
         if(err){
             return err;
         }
