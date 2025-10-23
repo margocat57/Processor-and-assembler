@@ -50,13 +50,15 @@ instruction_info* fill_listing_struct(assembler* assembl){
     size_t cmd_hash = 0;
 
     for (int idx = 0; idx < (int)assembl->file_in_arr.amount_str; idx++){
-
+        if(!assembl->ptr_array[idx]){
+            continue;
+        }
         assembl->ptr_array[idx] = skip_space(assembl->ptr_array[idx]);
         length = strcspn(assembl->ptr_array[idx], " \t\n\r\f\v");
         cmd_hash = create_djb2_hash(assembl->ptr_array[idx], length);
 
         for(int cmd = 1; cmd < (int)AMNT_CMD; cmd++){
-            if(!COMANDS[cmd].name_of_comand || !assembl->ptr_array[idx]){
+            if(!COMANDS[cmd].name_of_comand){
                 continue;
             }
 
@@ -211,6 +213,7 @@ assembler_err_t pushr_popr(int cmd, assembler* assembl){
 
     current_str = strchr(current_str, 'R');
     if(!current_str){
+        fprintf(stderr, "%s\n", assembl->info[assembl->asm_pc].instruction);
         fprintf(stderr, "Incorrect registr, can't fing R in word");
         return INCORRECT_REGISTR;
     }

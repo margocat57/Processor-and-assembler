@@ -66,7 +66,7 @@ void processor_dump(processor* intel);
 
 void bytecode_dump(processor* intel);
 
-stack_err_bytes ram_dump(processor* intel);
+void ram_dump(processor* intel);
 
 void reg_dump(processor* intel);
 

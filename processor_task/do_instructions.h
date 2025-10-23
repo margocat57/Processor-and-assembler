@@ -31,9 +31,7 @@ stack_err_bytes jne(processor* intel);
 //! 4. Returns error on unknown command codes
 stack_err_bytes do_processor_comands(processor* intel);
 
-stack_err_bytes jump_with_condition(processor* intel);
-
-stack_err_bytes do_arithmetic_op(processor* intel);
+stack_err_bytes draw(processor* intel);
 
 stack_err_bytes proc_push(processor* intel);
 

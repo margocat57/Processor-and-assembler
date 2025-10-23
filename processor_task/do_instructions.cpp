@@ -9,6 +9,8 @@
 #include "../stack_for_calcul/stack.h"
 #include "parse_asm_from_file.h"
 #include "../cmd_info.h"
+#include "../stack_for_calcul/log.h"
+#include "color_lib_proc.h"
 
 #define create_func_arithm_operations(operation, name) \
     stack_err_bytes name(processor* intel) { \
@@ -79,6 +81,7 @@ stack_err_bytes do_processor_comands(processor* intel){
         if(res){
             return res;
         }
+        // stack_dump(intel->stack);
         // begin DEBUG code
         // printf("after:\n");
         // processor_dump(intel);
@@ -88,6 +91,23 @@ stack_err_bytes do_processor_comands(processor* intel){
     }
     res = processor_verify(intel);
     return res;
+}
+
+stack_err_bytes draw(processor* intel){
+    for(size_t idx_ram = 0; idx_ram < RAM_MAX_SIZE; idx_ram++){
+        if (intel->RAM[idx_ram] == 1) {
+        printf_to_log_file(BLUE_LIGHT "* " COLOR_RESET);
+        } 
+        else {
+        printf_to_log_file("  ");
+        }
+
+        if((idx_ram + 1) % 10 == 0){
+            printf_to_log_file("\n");
+        }
+    }
+    intel->ic++;
+    return NO_MISTAKE;
 }
 
 stack_err_bytes proc_push(processor* intel){

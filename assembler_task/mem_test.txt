@@ -1,22 +1,69 @@
-PUSH 10
-PUSH 1
-POPR RAX
-POPM [AX]
-DRAW
-PUSH 20
-PUSH 2
-POPR RBX
-POPM [BX]
-DRAW
-PUSH 30
-PUSH 3
-POPR RCX
-POPM [CX]
-DRAW
-PUSHM [AX]
-DRAW
-PUSHM [BX]
-DRAW
-PUSHM [CX]
-DRAW
-VLT
+CALL :1
+:1
+    CALL :2 ; input and find r^2
+    CALL :3 ; find quotitent and reminder of div /10
+    ; check if point in square and fill ram
+    CALL :5 ; draw and finish program
+:2
+    PUSH 5
+    POPR RAX
+    PUSH 5
+    POPR RBX
+    IN
+    POPR RCX
+    PUSHR RCX
+    PUSHR RCX
+    MUL
+    POPR RCX
+    PUSH 0
+    POPR REX
+    RET
+:5
+    DRAW
+    VLT
+:3
+    PUSHR REX
+    PUSH 10
+    DIV
+    POPR RFX
+    PUSHR REX
+    PUSHR RFX
+    PUSH 10
+    MUL
+    SUB
+    POPR RGX
+    PUSHR RFX
+    PUSHR RAX
+    SUB
+    PUSHR RFX
+    PUSHR RAX
+    SUB
+    MUL
+    PUSHR RGX
+    PUSHR RBX
+    SUB
+    PUSHR RGX
+    PUSHR RBX
+    SUB
+    MUL
+    ADD
+    PUSHR RCX
+    JAE :6
+    PUSH 0
+    POPM [EX]
+    JMP :7
+:6
+    PUSH 1
+    POPM [EX]
+    JMP :7
+:7
+    PUSHR REX
+    PUSH 1
+    ADD
+    POPR REX
+    ;debug PUSHR REX
+    ;debug OUT
+    PUSHR REX
+    PUSH 100
+    JA :3
+    RET  

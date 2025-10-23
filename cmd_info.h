@@ -18,7 +18,7 @@ struct comands_and_size{
 //TODO у DRAW немного другая логика
 const comands_and_size COMANDS[]={
     {},                                                                 //0
-    {"PUSH",  6384411237    , 4, PUSH,   1, push,            proc_push}, //1
+    {"PUSH",  6384411237   , 4, PUSH,   1, push,            proc_push}, //1
     {"ADD" ,  193450094    , 3, ADD,    0, other,           add},       //2
     {"SUB" ,  193470255    , 3, SUB,    0, other,           sub},       //3
     {"DIV" ,  193453544    , 3, DIV,    0, other,           divide},    //4
@@ -37,8 +37,8 @@ const comands_and_size COMANDS[]={
     {"CALL" , 6383922049   , 4, CALL,   1, func_with_metka, call},      //17
     {"RET"  , 193468656    , 3, RET,    0, other,           ret},       //18
     {"PUSHM", 210685570898 , 5, PUSHM,  1, pushm_popm,      pushm},     //19
-    {"POPM",  193466804    , 4, POPM,   1, pushm_popm,      popm},      //20
-    {"DRAW",  2089008851   , 4, DRAW,   0, other,           ram_dump},  //21
+    {"POPM",  6384404609   , 4, POPM,   1, pushm_popm,      popm},      //20
+    {"DRAW",  6383976147   , 4, DRAW,   0, other,           draw},      //21
     {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},                         //22 - 32
     {"PUSHR", 210685570903 , 5, PUSHR,  1, pushr_popr,      pushr},     //33
     {}, {}, {}, {}, {}, {}, {}, {},                                     //34 - 41

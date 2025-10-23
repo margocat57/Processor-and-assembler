@@ -68,7 +68,7 @@ void reg_dump(processor* intel){
     }
 }
 
-stack_err_bytes ram_dump(processor* intel){
+void ram_dump(processor* intel){
     printf_to_log_file(BLUE "\nRAM max size %d\n" COLOR_RESET, RAM_MAX_SIZE);
     for(size_t idx_ram = 0; idx_ram < RAM_MAX_SIZE; idx_ram++){
         if (idx_ram % 2 == 0) {
@@ -82,7 +82,6 @@ stack_err_bytes ram_dump(processor* intel){
             printf_to_log_file("\n");
         }
     }
-    return NO_MISTAKE;
 }
 
 void processor_dump(processor* intel){
@@ -141,51 +140,6 @@ void processor_free(processor* intel){
         intel->call_stack = NULL;
     }
 }
-
-// программа на ассемблере
-// push заполнять оперативку
-// выделенные адреса операвки - видеопамять
-// in радиус
-// DRAW - если 0 точка иначе решетка
-void fill_video_ram2(processor* intel){
-    if(!intel){
-        fprintf(stderr, "Pointer to processor is NULL - can't work");
-        return;
-    }
-    int index = 0;
-    double x_coord = 0;
-    double y_coord = 0;
-    int centr_x = WIDTH1 / 2;
-    int centr_y = HEIGHT1 / 2;
-
-    for(int y = 0; y < HEIGHT1; y++){
-        for(int x = 0; x < WIDTH1; x++){
-            index = (y * WIDTH1 + x);
-            x_coord = fabs(x - centr_x);
-            y_coord = fabs(y - centr_y);
-            if(x_coord*x_coord + y_coord*y_coord <= R1*R1){
-                intel->VIDEO_RAM2[index] = '*';
-            }
-            else{
-                intel->VIDEO_RAM2[index] = ' ';
-            }
-        }
-    }
-
-
-    for(int y = 0; y < HEIGHT1; y++){
-        for(int x = 0; x < WIDTH1; x++){
-            index = (y * WIDTH1 + x);
-            x_coord = fabs(x - centr_x);
-            y_coord = fabs(y - centr_y);
-            fprintf(stderr, "%c " ,intel->VIDEO_RAM2[index]);
-        }
-        fprintf(stderr, "\n");
-    }
-}
-
-
-
 
 
 
