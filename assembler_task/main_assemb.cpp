@@ -5,8 +5,7 @@
 #include "../stack_for_calcul/hash.h"
 
 int main(){
-    fprintf(stderr, "PUSHM = %zu", create_djb2_hash("PUSHM", 5));
-    fprintf(stderr, "POPM = %zu", create_djb2_hash("POPM", 4));
+    fprintf(stderr, "HLT = %zu", create_djb2_hash("HLT", 3));
     assembler assembl = asm_init("assembler_task/mem_test.txt");
     if (parser(&assembl)){
         free_asm(&assembl);

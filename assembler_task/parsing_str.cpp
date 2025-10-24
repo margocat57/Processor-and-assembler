@@ -150,6 +150,9 @@ static assembler_err_t parse_cmnds(assembler* assembl){
     return NO_MISTAKE_ASM;
 }
 
+// запихать в ассембер cmd
+// либо в процессор int
+// можно при помощи флага компиляции ассембер и процессор
 assembler_err_t other(int cmd, assembler* assembl){
     size_t number_of_str_in_txt_file = assembl->asm_pc;
     long long int index_of_bytecode_array = assembl->info[number_of_str_in_txt_file].pc;

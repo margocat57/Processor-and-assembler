@@ -2,8 +2,7 @@ CALL :1
 :1
     CALL :2 ; input and find r^2
     CALL :3 ; find quotitent and reminder of div /10
-    ; check if point in square and fill ram
-    CALL :5 ; draw and finish program
+    CALL :5 ; check if point in square and fill ram
 
 ;============================
 ; Input R and find R^2
@@ -89,7 +88,7 @@ CALL :1
 ; ram
 ; Input: ram index - REX
 ; 
-; If ram index < 100 continue
+; If ram index < 99 continue
 ; checking(:3) if point in
 ; circle, in other case end
 ; program
@@ -102,6 +101,6 @@ CALL :1
     ;debug PUSHR REX
     ;debug OUT
     PUSHR REX
-    PUSH 100
+    PUSH 99
     JA :3
-    RET  
+    RET
