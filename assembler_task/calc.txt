@@ -5,6 +5,14 @@ CALL :11
     CALL :8  ; find discriminant
     CALL :9  ; solve square eq
     CALL :10 ; output result
+
+;============================
+; Input coefficents of
+; equation
+; Output: a - RAX
+;         b - RBX
+;         c - RCX
+;============================
 :6
     IN
     POPR RAX
@@ -13,11 +21,24 @@ CALL :11
     IN
     POPR RCX
     RET
+;============================
+; Check if a is not 0
+; Input : a - RAX
+; If a is 0 jump to :1
+;============================
 :7
     PUSHR RAX
     PUSH 0
     JE :1
     RET
+;============================
+; Solve linear equation
+; Input:  b - RBX
+;         c - RCX
+; Output: solution of equation
+; (if b != 0), or jump to :4
+; Ends program if not jumping
+;============================
 :1  
     PUSHR RBX
     PUSH 0
@@ -30,18 +51,40 @@ CALL :11
     PUSHR RBX
     DIV
     OUT
-    VLT
+    HLT
+;============================
+; Solve const(const = 0)
+; equation
+; Input:  c - RCX
+; Output: 0 if (c ! = 0)
+; or jump to :5. Ends program
+; if not jumping
+;============================
 :4
     PUSHR RCX
     PUSH 0
     JE :5
     PUSH 0
     OUT 
-    VLT
+    HLT
+;============================
+; Output 8 (if there are inf
+; solutions). End program
+;============================
 :5  
     PUSH 8
     OUT
-    VLT
+    HLT
+
+;============================
+; Evaluate D
+; If D < 0
+; Input: a - rax,
+;        b - rbx,
+;        c - rcx
+; Output: D - RDX(if D >= 0)
+; in other case jump to :2
+;============================
 :8
     PUSHR RBX
     PUSHR RBX
@@ -57,10 +100,23 @@ CALL :11
     PUSH 0
     JA :2
     RET
+;============================
+; Output 0 (if there are no
+; solutions). End program
+;============================
 :2
     PUSH 0
     OUT
-    VLT
+    HLT
+;============================
+; Solve square equation
+; Input: a - rax,
+;        b - rbx,
+;        c - rcx,
+;        d - rdx
+; Output: solution1 (REX) and 
+; solution2 (RFX)
+;============================
 :9
     PUSHR RDX
     SQRT
@@ -86,6 +142,17 @@ CALL :11
     DIV
     POPR RFX
     RET
+;============================
+; Output number of solutions
+; And solutions
+; If there is one solution1
+; jump to :3
+; Input: x1 - rex,
+;        x2 - rfx (smallest)
+; Output: solution1 (REX) and 
+; solution2 (RFX)
+; Ends program
+;============================
 :10 
     PUSHR REX
     PUSHR RFX 
@@ -96,15 +163,23 @@ CALL :11
     PUSHR RFX 
     OUT
     OUT
-    VLT
+    HLT
+;============================
+; Output number of solutions
+; And solutions if 1 solution
+; Input: x1 - rex,
+; Output: solution1 (REX)
+; Ends program
+;============================
 :3
     PUSH 1
     OUT
     PUSHR REX
     OUT
-    VLT
+    HLT
 
 
+Example asm documentation
 ;============================
 ; Evaluate D
 ; Input: a - rax,

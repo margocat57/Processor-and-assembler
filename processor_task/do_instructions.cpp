@@ -69,7 +69,7 @@ stack_err_bytes do_processor_comands(processor* intel){
 
     for(; intel->ic < intel->code.size;){
         bytecode_elem = intel->code.comands[intel->ic];
-        if(bytecode_elem == VLT){
+        if(bytecode_elem == HLT){
             res = processor_verify(intel);
             return res;
         }

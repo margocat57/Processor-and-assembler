@@ -15,7 +15,6 @@ struct comands_and_size{
     stack_err_bytes(*function_proc)(processor*);
 };
 
-//TODO у DRAW немного другая логика
 const comands_and_size COMANDS[]={
     {},                                                                 //0
     {"PUSH",  6384411237   , 4, PUSH,   1, push,            proc_push}, //1
@@ -24,7 +23,7 @@ const comands_and_size COMANDS[]={
     {"DIV" ,  193453544    , 3, DIV,    0, other,           divide},    //4
     {"MUL" ,  193463731    , 3, MUL,    0, other,           mul},       //5
     {"OUT" ,  193465917    , 3, OUT,    0, other,           out},       //6
-    {"VLT" ,  193473243    , 3, VLT,    0, other,           NULL},      //7
+    {"VLT" ,  193473243    , 3, HLT,    0, other,           NULL},      //7
     {"SQRT" , 6384514671   , 4, SQRT,   0, other,           sqrt},      //8
     {"IN"   , 5862396      , 2, IN,     0, other,           in},        //9
     {"JB"   , 5862417      , 2, JB,     1, func_with_metka, jb},        //10

@@ -14,13 +14,6 @@ const int VIDEO_RAM_MAX_SIZE = WIDTH * HEIGHT * 3;
 const int R = 50;
 // for sfml - in process
 
-// for usual output square
-const int WIDTH1 = 25;
-const int HEIGHT1 = 25;
-const int R1 = 10;
-const int VIDEO_RAM2_MAX_SIZE = WIDTH1 * HEIGHT1;
-// for usual output square
-
 struct code_and_size{
     int* comands;
     size_t size;
@@ -34,8 +27,7 @@ struct processor{
     stack_t_t* call_stack;
     int RAM[RAM_MAX_SIZE];
     int ram_counter;
-    unsigned int VIDEO_RAM[VIDEO_RAM_MAX_SIZE];
-    unsigned char VIDEO_RAM2[VIDEO_RAM2_MAX_SIZE];
+    unsigned int VIDEO_RAM[VIDEO_RAM_MAX_SIZE]; // for sfml - in process
     int result;
 };
 
@@ -80,8 +72,6 @@ stack_err_bytes processor_verify(processor* intel);
 //! 3. Zeroes and frees bytecode array, nullifies pointer  
 //! 4. Frees call stack and nullifies pointer
 void processor_free(processor* intel);
-
-void fill_video_ram2(processor* intel);
 
 void fill_video_ram(processor* intel);
 

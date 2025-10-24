@@ -17,7 +17,7 @@ enum CODE_CMD{
     DIV   = 4,
     MUL   = 5,
     OUT   = 6,
-    VLT   = 7,
+    HLT   = 7,
     SQRT  = 8,
     IN    = 9,
     JB    = 10,

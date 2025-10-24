@@ -7,34 +7,69 @@ CALL :3
     CALL :2 ; find factorial
     CALL :8 ; output
 
+;============================
+; Input n
+; Output: n - RAX
+;============================
 :4
     IN
     POPR RAX
     RET
+;============================
+; Check if n != 0
+; Input: n - rax,
+; If n == 0 jump to :1
+;============================
 :5
     PUSH 0
     PUSHR RAX
     JE :1
     RET
+;============================
+; Check if n != 1
+; Input: n - rax,
+; If n == 1 jump to :1
+;============================
 :6
     PUSH 1
     PUSHR RAX
     JE :1
     RET
+;============================
+; Put 1 to registr with result
+; (RCX) registr
+;============================
 :7
     PUSH 1
     POPR RBX
     PUSHR RBX
     POPR RCX
     RET
+;============================
+; Output result(RCX)
+; End program
+;============================
 :8
     PUSHR RCX
     OUT
-    VLT
+    HLT
+;============================
+; Output result if n==0 or n==1
+; End program
+;============================
 :1
     PUSH 1
     OUT
-    VLT
+    HLT
+;============================
+; Find factorial by formule
+; n! = n * (n - 1)!
+; Input: n                 - rax,
+;        t (from 2 to n-1) - rbx,
+; Output: (n - k)! - rcx
+; Call itself many times while
+; t < n
+;============================
 :2  
     PUSHR RBX
     PUSHR RAX

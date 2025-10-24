@@ -4,6 +4,15 @@ CALL :1
     CALL :3 ; find quotitent and reminder of div /10
     ; check if point in square and fill ram
     CALL :5 ; draw and finish program
+
+;============================
+; Input R and find R^2
+; Input: r - rcx,
+; Output: r^2      - rcx,
+; centre of sq(Ox) - rax,
+; centre of sq(Oy) - rbx,
+; 0 point (0, 0)   - rex
+;============================
 :2
     PUSH 5
     POPR RAX
@@ -18,9 +27,28 @@ CALL :1
     PUSH 0
     POPR REX
     RET
+;============================
+; Output circle
+;============================
 :5
     DRAW
-    VLT
+    HLT
+;============================
+; Find points in the circle
+; Input: r            - rcx,
+; index of ram array  - rex
+;
+; Find coordinate of elem
+; with each index of ram array
+; and checks if it in square
+;
+; If it in square push 1 to
+; ram elem(:6), in other case
+; push 0
+;
+; JMP to :7 to check usage 
+; of ram
+;============================
 :3
     PUSHR REX
     PUSH 10
@@ -56,6 +84,16 @@ CALL :1
     PUSH 1
     POPM [EX]
     JMP :7
+;============================
+; Checks if we go through all
+; ram
+; Input: ram index - REX
+; 
+; If ram index < 100 continue
+; checking(:3) if point in
+; circle, in other case end
+; program
+;============================
 :7
     PUSHR REX
     PUSH 1
